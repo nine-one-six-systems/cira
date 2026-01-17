@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 from app.config import Config, get_config
+from app.services.redis_service import redis_service
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -35,6 +36,13 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Configure CORS
     CORS(app, origins=app.config.get('CORS_ORIGINS', ['http://localhost:5173']))
+
+    # Initialize Redis service
+    redis_service.init_app(app)
+
+    # Initialize Celery
+    from app.workers.celery_app import init_celery
+    init_celery(app)
 
     # Import models to register them with SQLAlchemy
     from app import models  # noqa: F401

@@ -3,6 +3,7 @@
 from flask import jsonify, current_app
 from app.api import api_bp
 from app import db
+from app.services import redis_service
 
 
 @api_bp.route('/health', methods=['GET'])
@@ -31,15 +32,16 @@ def health_check():
         health_status['database'] = 'disconnected'
         health_status['status'] = 'degraded'
 
-    # Check Redis connection
-    try:
-        import redis
-        redis_url = current_app.config.get('REDIS_URL', 'redis://localhost:6379/0')
-        r = redis.from_url(redis_url)
-        r.ping()
+    # Check Redis connection using the service
+    redis_health = redis_service.health_check()
+    if redis_health['connected']:
         health_status['redis'] = 'connected'
-    except Exception as e:
-        current_app.logger.warning(f'Redis health check failed: {e}')
+        if redis_health.get('latency_ms'):
+            health_status['redis_latency_ms'] = redis_health['latency_ms']
+    else:
+        current_app.logger.warning(
+            f'Redis health check failed: {redis_health.get("error", "unknown")}'
+        )
         health_status['redis'] = 'disconnected'
         # Redis being down doesn't make the service unhealthy for basic operations
         if health_status['status'] == 'healthy':

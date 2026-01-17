@@ -12,6 +12,18 @@ from app.crawlers.browser_manager import (
     browser_manager,
     simple_fetcher,
 )
+from app.crawlers.page_classifier import PageClassifier, PageClassification, page_classifier
+from app.crawlers.external_links import ExternalLinkDetector, ExternalLink, external_link_detector
+from app.crawlers.pdf_extractor import PDFExtractor, PDFContent, pdf_extractor
+from app.crawlers.crawl_worker import (
+    CrawlWorker,
+    CrawlConfig,
+    CrawledPage,
+    CrawlProgress,
+    CrawlCheckpoint,
+    CrawlResult,
+    create_crawl_worker,
+)
 
 __all__ = [
     # robots.txt
@@ -34,6 +46,26 @@ __all__ = [
     'SimpleFetcher',
     'browser_manager',
     'simple_fetcher',
+    # Page classification
+    'PageClassifier',
+    'PageClassification',
+    'page_classifier',
+    # External links
+    'ExternalLinkDetector',
+    'ExternalLink',
+    'external_link_detector',
+    # PDF extraction
+    'PDFExtractor',
+    'PDFContent',
+    'pdf_extractor',
+    # Crawl worker
+    'CrawlWorker',
+    'CrawlConfig',
+    'CrawledPage',
+    'CrawlProgress',
+    'CrawlCheckpoint',
+    'CrawlResult',
+    'create_crawl_worker',
 ]
 
 

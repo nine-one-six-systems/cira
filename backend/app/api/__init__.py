@@ -8,3 +8,4 @@ api_bp = Blueprint('api', __name__)
 from app.api.routes import health  # noqa: F401, E402
 from app.api.routes import companies  # noqa: F401, E402
 from app.api.routes import batch  # noqa: F401, E402
+from app.api.routes import control  # noqa: F401, E402

@@ -1,5 +1,6 @@
 """Company-related Pydantic schemas."""
 
+import re
 from datetime import datetime
 from typing import Any
 
@@ -7,6 +8,13 @@ from pydantic import Field, HttpUrl, field_validator
 
 from app.models.enums import AnalysisMode, CompanyStatus, ProcessingPhase
 from app.schemas.base import CamelCaseModel
+
+
+# Regex to validate domain has at least one dot and valid TLD
+URL_DOMAIN_PATTERN = re.compile(
+    r'^https?://[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)+',
+    re.IGNORECASE
+)
 
 
 # Request Schemas
@@ -64,9 +72,14 @@ class CreateCompanyRequest(CamelCaseModel):
     @field_validator('website_url', mode='before')
     @classmethod
     def normalize_url(cls, v: Any) -> Any:
-        """Ensure URL is properly formatted."""
-        if isinstance(v, str) and not v.startswith(('http://', 'https://')):
-            return f'https://{v}'
+        """Ensure URL is properly formatted and has valid domain."""
+        if isinstance(v, str):
+            # Add protocol if missing
+            if not v.startswith(('http://', 'https://')):
+                v = f'https://{v}'
+            # Validate domain has proper structure (contains a dot for TLD)
+            if not URL_DOMAIN_PATTERN.match(v):
+                raise ValueError('URL must have a valid domain with TLD (e.g., example.com)')
         return v
 
 

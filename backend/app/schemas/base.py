@@ -2,7 +2,7 @@
 
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 T = TypeVar('T')
@@ -44,8 +44,8 @@ class PaginationMeta(CamelCaseModel):
 
     total: int
     page: int
-    page_size: int
-    total_pages: int
+    page_size: int = Field(..., alias='pageSize')
+    total_pages: int = Field(..., alias='totalPages')
 
 
 class PaginatedResponse(CamelCaseModel, Generic[T]):

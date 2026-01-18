@@ -2,10 +2,11 @@
  * Company Results Page - Analysis results display
  *
  * Implements Task 8.5: Results View Page
- * - Tabs: Summary, Entities, Pages, Token Usage
+ * - Tabs: Summary, Entities, Pages, Token Usage, Versions
  * - Summary: markdown, sidebar info
  * - Export dropdown
  * - Re-scan button
+ * - Version comparison (Task 9.3)
  */
 
 import { useState } from 'react';
@@ -16,6 +17,8 @@ import {
   usePages,
   useTokens,
   useRescanCompany,
+  useVersions,
+  useCompareVersions,
 } from '../hooks/useCompanies';
 import { exportAnalysis } from '../api/companies';
 import {
@@ -30,6 +33,7 @@ import {
   Modal,
   useToast,
 } from '../components/ui';
+import { VersionSelector, ChangeHighlight } from '../components/domain';
 import type { Tab, TableColumn } from '../components/ui';
 import type { Entity, Page, EntityType, PageType } from '../types';
 
@@ -121,6 +125,10 @@ export default function CompanyResults() {
   // Rescan modal state
   const [rescanModalOpen, setRescanModalOpen] = useState(false);
 
+  // Version comparison state
+  const [compareVersion1, setCompareVersion1] = useState<number>(0);
+  const [compareVersion2, setCompareVersion2] = useState<number>(0);
+
   // Fetch data
   const { data: companyData, isLoading: companyLoading } = useCompany(id || '');
   const { data: entitiesData, isLoading: entitiesLoading } = useEntities(id || '', {
@@ -134,6 +142,12 @@ export default function CompanyResults() {
     pageSize: 20,
   });
   const { data: tokensData, isLoading: tokensLoading } = useTokens(id || '');
+  const { data: versionsData, isLoading: versionsLoading } = useVersions(id || '');
+  const { data: comparisonData, isLoading: comparisonLoading } = useCompareVersions(
+    id || '',
+    compareVersion1,
+    compareVersion2
+  );
 
   // Mutations
   const rescanMutation = useRescanCompany();
@@ -719,12 +733,112 @@ export default function CompanyResults() {
     </Card>
   );
 
+  // Versions tab content
+  const VersionsContent = (
+    <Card>
+      {versionsLoading ? (
+        <Skeleton className="h-[300px]" />
+      ) : versionsData?.data && versionsData.data.length > 0 ? (
+        <div className="space-y-6">
+          {/* Version History */}
+          <div>
+            <h3 className="font-semibold text-neutral-900 mb-4">Version History</h3>
+            <div className="grid gap-3">
+              {versionsData.data.map((version) => (
+                <div
+                  key={version.analysisId}
+                  className={`p-4 rounded-lg border ${
+                    version.versionNumber === analysis?.versionNumber
+                      ? 'border-primary bg-primary-50'
+                      : 'border-neutral-200 bg-neutral-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">Version {version.versionNumber}</span>
+                      {version.versionNumber === analysis?.versionNumber && (
+                        <Badge variant="info" size="sm">Current</Badge>
+                      )}
+                    </div>
+                    <div className="text-sm text-neutral-500">
+                      {formatDate(version.createdAt)} · {formatNumber(version.tokensUsed)} tokens
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Version Comparison */}
+          {versionsData.data.length >= 2 && (
+            <div className="border-t pt-6">
+              <h3 className="font-semibold text-neutral-900 mb-4">Compare Versions</h3>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <VersionSelector
+                  versions={versionsData.data}
+                  currentVersion={compareVersion1 || versionsData.data[1]?.versionNumber || 0}
+                  onSelect={(v) => {
+                    setCompareVersion1(v);
+                    // Auto-select version 2 if not set
+                    if (!compareVersion2 && versionsData.data[0]) {
+                      setCompareVersion2(versionsData.data[0].versionNumber);
+                    }
+                  }}
+                  label="Previous Version"
+                />
+                <VersionSelector
+                  versions={versionsData.data}
+                  currentVersion={compareVersion2 || versionsData.data[0]?.versionNumber || 0}
+                  onSelect={setCompareVersion2}
+                  label="Current Version"
+                />
+              </div>
+
+              {/* Comparison Results */}
+              {compareVersion1 > 0 && compareVersion2 > 0 && compareVersion1 !== compareVersion2 ? (
+                comparisonLoading ? (
+                  <Skeleton className="h-[200px]" />
+                ) : comparisonData?.data ? (
+                  <ChangeHighlight comparison={comparisonData.data} />
+                ) : (
+                  <div className="text-center py-8 text-neutral-500">
+                    Unable to load comparison. Please try again.
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-8 text-neutral-500">
+                  {compareVersion1 === compareVersion2
+                    ? 'Select different versions to compare.'
+                    : 'Select two versions above to compare changes.'}
+                </div>
+              )}
+            </div>
+          )}
+
+          {versionsData.data.length === 1 && (
+            <div className="border-t pt-6 text-center py-8 text-neutral-500">
+              <p>Only one version exists.</p>
+              <p className="text-sm mt-2">
+                Use the Re-scan button to create a new version and compare changes.
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-neutral-500">
+          No version history available.
+        </div>
+      )}
+    </Card>
+  );
+
   // Tab definitions with content
   const tabs: Tab[] = [
     { id: 'summary', label: 'Summary', content: SummaryContent },
     { id: 'entities', label: `Entities (${entityCount})`, content: EntitiesContent },
     { id: 'pages', label: `Pages (${pageCount})`, content: PagesContent },
     { id: 'tokens', label: 'Token Usage', content: TokensContent },
+    { id: 'versions', label: `Versions (${versionsData?.data?.length ?? 0})`, content: VersionsContent },
   ];
 
   return (

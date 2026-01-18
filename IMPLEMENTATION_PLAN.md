@@ -4,7 +4,7 @@
 
 This implementation plan covers the development of CIRA (Company Intelligence Research Assistant), a web-based application for automated company research and analysis. The plan is organized into 10 phases, with tasks sorted by priority within each phase.
 
-**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete, Phase 9 Tasks 9.1, 9.2, 9.4, 9.5, 9.6 Complete (1007 backend tests)
+**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete, Phase 9 Tasks 9.1-9.6 Complete (1007 backend tests, 167 frontend tests)
 
 **Tech Stack:**
 - Frontend: React 18+, TypeScript 5.0+, Vite 5.0+, TanStack Query 5.0+, Tailwind CSS 3.4+
@@ -1573,6 +1573,27 @@ This implementation plan covers the development of CIRA (Company Intelligence Re
 - File: `backend/app/services/url_validator.py`
 
 **Tests:** 38 passing tests in `tests/test_url_validator.py`
+
+---
+
+### Task 9.3: Re-scan with Change Detection ✅
+**Completed:** Version comparison and change detection
+- Backend: Version history API endpoint (`GET /api/v1/companies/:id/versions`)
+- Backend: Version comparison API endpoint (`GET /api/v1/companies/:id/compare`)
+- Backend: Re-scan creates new analysis version (max 3, auto-deletes oldest)
+- Frontend: Versions tab in CompanyResults page
+- Frontend: VersionSelector component for selecting versions
+- Frontend: ChangeHighlight component for displaying version changes
+- Change detection for team, products, and content sections
+- Color-coded diff display (green=added, red=removed, yellow=modified)
+- Files:
+  - `backend/app/api/routes/versions.py` - Version history and comparison endpoints
+  - `backend/app/api/routes/control.py` - Rescan endpoint
+  - `frontend/src/pages/CompanyResults.tsx` - Versions tab integration
+  - `frontend/src/components/domain/VersionSelector.tsx` - Version selector component
+  - `frontend/src/components/domain/ChangeHighlight.tsx` - Change visualization component
+
+**Tests:** 4 backend tests in `tests/test_remaining_api.py`, 31 frontend tests in domain component tests
 
 ---
 

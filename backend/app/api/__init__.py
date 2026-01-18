@@ -14,3 +14,4 @@ from app.api.routes import entities  # noqa: F401, E402
 from app.api.routes import tokens  # noqa: F401, E402
 from app.api.routes import config  # noqa: F401, E402
 from app.api.routes import versions  # noqa: F401, E402
+from app.api.routes import export  # noqa: F401, E402

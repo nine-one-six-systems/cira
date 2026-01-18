@@ -58,7 +58,48 @@ def create_app(config_name: str | None = None) -> Flask:
     with app.app_context():
         db.create_all()
 
+    # Register startup tasks for job recovery
+    # This runs after the first request in production, or can be triggered explicitly
+    _register_startup_tasks(app)
+
     return app
+
+
+def _register_startup_tasks(app: Flask) -> None:
+    """
+    Register tasks to run on application startup.
+
+    Includes:
+    - Automatic recovery of in_progress jobs (FR-STA-005)
+    """
+    import os
+
+    # Skip recovery in testing mode to avoid side effects
+    if app.config.get('TESTING', False):
+        return
+
+    # Skip recovery if explicitly disabled
+    if os.environ.get('SKIP_JOB_RECOVERY', '').lower() == 'true':
+        app.logger.info('Job recovery skipped (SKIP_JOB_RECOVERY=true)')
+        return
+
+    @app.before_request
+    def recover_jobs_once():
+        """Recover jobs on first request after startup."""
+        # Use a flag to ensure this only runs once
+        if not hasattr(app, '_jobs_recovered'):
+            app._jobs_recovered = True
+            try:
+                from app.services.job_service import job_service
+                recovered = job_service.recover_in_progress_jobs()
+                if recovered:
+                    app.logger.info(
+                        f'Recovered {len(recovered)} in-progress jobs on startup: {recovered}'
+                    )
+                else:
+                    app.logger.info('No in-progress jobs to recover on startup')
+            except Exception as e:
+                app.logger.error(f'Error recovering jobs on startup: {e}')
 
 
 def configure_logging(app: Flask) -> None:

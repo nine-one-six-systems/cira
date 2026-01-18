@@ -23,6 +23,7 @@ from app.schemas import (
     DeleteResponse,
     DeletedRecords,
 )
+from app.services.url_validator import validate_url
 
 
 def make_error_response(code: str, message: str, details: dict | None = None, status: int = 400):
@@ -32,10 +33,13 @@ def make_error_response(code: str, message: str, details: dict | None = None, st
     return jsonify(response.model_dump(by_alias=True)), status
 
 
-def make_success_response(data, status: int = 200):
-    """Create a standard success response."""
+def make_success_response(data, status: int = 200, warnings: list[str] | None = None):
+    """Create a standard success response, optionally with warnings."""
     response = ApiResponse[dict](data=data)
-    return jsonify(response.model_dump(by_alias=True)), status
+    response_dict = response.model_dump(by_alias=True)
+    if warnings:
+        response_dict['warnings'] = warnings
+    return jsonify(response_dict), status
 
 
 def normalize_url(url: str) -> str:
@@ -57,15 +61,27 @@ def create_company():
             {'errors': [{'field': err['loc'][0], 'message': err['msg']} for err in errors]}
         )
 
-    # Normalize URL for storage and comparison
-    normalized_url = normalize_url(request_data.website_url)
+    # Validate and normalize URL with reachability check
+    # Skip reachability check if explicitly disabled or in testing
+    skip_reachability = request.args.get('skipReachabilityCheck', 'false').lower() == 'true'
+    url_result = validate_url(str(request_data.website_url), check_reachability=not skip_reachability)
+
+    if not url_result.is_valid:
+        return make_error_response(
+            'VALIDATION_ERROR',
+            url_result.error_message or 'Invalid URL format',
+            {'field': 'websiteUrl'}
+        )
+
+    # Use the normalized URL
+    normalized_url = url_result.normalized_url.rstrip('/')
+
+    # Collect warnings
+    warnings = []
+    if url_result.warning_message:
+        warnings.append(url_result.warning_message)
 
     # Check for existing company with same URL (normalized)
-    existing = Company.query.filter(
-        db.func.replace(Company.website_url, '/', '') == normalized_url.replace('/', '')
-    ).first()
-
-    # Simpler check: normalize both sides
     existing = None
     for company in Company.query.all():
         if normalize_url(company.website_url) == normalized_url:
@@ -109,7 +125,11 @@ def create_company():
         createdAt=company.created_at
     )
 
-    return make_success_response(response_data.model_dump(by_alias=True), status=201)
+    return make_success_response(
+        response_data.model_dump(by_alias=True),
+        status=201,
+        warnings=warnings if warnings else None
+    )
 
 
 @api_bp.route('/companies', methods=['GET'])

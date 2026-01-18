@@ -2,3 +2,4 @@
 
 from app.api.routes.health import *  # noqa: F401, F403
 from app.api.routes.companies import *  # noqa: F401, F403
+from app.api.routes.export import *  # noqa: F401, F403

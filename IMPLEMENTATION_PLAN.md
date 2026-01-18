@@ -4,7 +4,7 @@
 
 This implementation plan covers the development of CIRA (Company Intelligence Research Assistant), a web-based application for automated company research and analysis. The plan is organized into 10 phases, with tasks sorted by priority within each phase.
 
-**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete
+**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete, Phase 9 Tasks 9.1, 9.2, 9.5, 9.6 Complete (950 backend tests)
 
 **Tech Stack:**
 - Frontend: React 18+, TypeScript 5.0+, Vite 5.0+, TanStack Query 5.0+, Tailwind CSS 3.4+
@@ -1523,6 +1523,58 @@ This implementation plan covers the development of CIRA (Company Intelligence Re
 - Social media following toggles
 - Save/Reset functionality
 - Unsaved changes indicator
+
+---
+
+### Task 9.1: Export Generation Service ✅
+**Completed:** Export generation for multiple formats
+- Markdown export with proper formatting and sections
+- Word (.docx) export using python-docx with styled headings, tables
+- PDF export using ReportLab with professional layout
+- JSON export with optional raw data (entities, pages)
+- File: `backend/app/services/export_service.py`
+
+**Tests:** 36 passing tests in `tests/test_export_service.py`
+
+---
+
+### Task 9.2: Export API Endpoint ✅
+**Completed:** Export download endpoint
+- `GET /api/v1/companies/:id/export?format=markdown|word|pdf|json`
+- Query params: `includeRawData`, `version`
+- Correct Content-Type and Content-Disposition headers
+- Error handling for invalid formats, non-completed companies
+- File: `backend/app/api/routes/export.py`
+
+**Tests:** 28 passing tests in `tests/test_export_api.py`
+
+---
+
+### Task 9.5: Automatic Job Recovery ✅
+**Completed:** Job recovery on application startup
+- Detects in_progress jobs on startup
+- Resumes from checkpoint if available
+- Marks stale jobs (>1 hour without activity) as failed
+- Logs recovery actions
+- Updated `backend/app/__init__.py` with startup recovery
+- Uses `backend/app/services/job_service.py` recovery methods
+
+**Tests:** 14 passing tests in `tests/test_job_recovery.py`
+
+---
+
+### Task 9.6: URL Reachability Check ✅
+**Completed:** URL validation and reachability checking
+- Format validation (http/https, valid domain)
+- HEAD request reachability check with 10 second timeout
+- Returns warning (not error) for unreachable URLs
+- Normalizes URLs (adds https://, trailing slash)
+- `skipReachabilityCheck` query parameter support
+- File: `backend/app/services/url_validator.py`
+
+**Tests:** 38 passing tests in `tests/test_url_validator.py`
+
+---
 
 [Previous completed tasks will be moved here]
 

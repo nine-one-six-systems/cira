@@ -18,3 +18,10 @@
 - Tip: E2E tests should use isVisible().catch(() => false) for robust element checking
 - Achievement: All Phase 10 tasks complete - Task 10.1, 10.2, 10.3, 10.7 verified/implemented
 ---
+[2026-01-18] Iteration 3 - Lint Fix
+- Pattern: react-refresh/only-export-components errors can be fixed by moving non-component exports (utility functions) to separate files
+- Pattern: Hooks that are tightly coupled with their providers (like useToast + ToastProvider) can use eslint-disable comment as a valid exception
+- Gotcha: Moving exports to new files requires updating test imports and verifying re-exports from index.ts
+- Tip: Always run both lint AND tests after restructuring exports to catch import issues
+- Achievement: Fixed ESLint errors in Badge.tsx and Toast.tsx, created v0.0.6 tag
+---

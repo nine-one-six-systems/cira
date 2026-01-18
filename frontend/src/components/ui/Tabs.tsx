@@ -58,7 +58,7 @@ export function Tabs({
   );
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent, index: number) => {
+    (e: React.KeyboardEvent) => {
       const enabledTabs = tabs.filter((t) => !t.disabled);
       const currentIndex = enabledTabs.findIndex((t) => t.id === activeTab);
 
@@ -107,7 +107,7 @@ export function Tabs({
         aria-label="Content tabs"
         className="flex border-b border-neutral-200"
       >
-        {tabs.map((tab, index) => {
+        {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (
             <button
@@ -120,7 +120,7 @@ export function Tabs({
               tabIndex={isActive ? 0 : -1}
               disabled={tab.disabled}
               onClick={() => handleTabClick(tab.id)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onKeyDown={handleKeyDown}
               className={`
                 px-4 py-3
                 text-sm font-medium

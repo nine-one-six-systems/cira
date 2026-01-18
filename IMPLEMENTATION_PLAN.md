@@ -4,7 +4,7 @@
 
 This implementation plan covers the development of CIRA (Company Intelligence Research Assistant), a web-based application for automated company research and analysis. The plan is organized into 10 phases, with tasks sorted by priority within each phase.
 
-**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Task 7.2 Complete (136 frontend tests)
+**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete
 
 **Tech Stack:**
 - Frontend: React 18+, TypeScript 5.0+, Vite 5.0+, TanStack Query 5.0+, Tailwind CSS 3.4+
@@ -1447,6 +1447,82 @@ This implementation plan covers the development of CIRA (Company Intelligence Re
 - Slider (label, value display, units, min/max/step)
 
 **Tests:** 136 passing tests across 13 test files
+
+---
+
+### Task 7.3-7.5: Frontend Infrastructure ✅
+**Completed:** Phase 7 Frontend Core Setup
+- React Router configuration with all routes (/, /companies/:id, /companies/:id/progress, /add, /batch, /settings)
+- TanStack Query API hooks (useCompanies, useCompany, useProgress, useCreateCompany, etc.)
+- Axios API client with interceptors and error handling
+
+---
+
+### Task 8.1: Dashboard / Company List Page ✅
+**Completed:** Full functionality dashboard
+- Table with Name, Website, Status, Tokens, Actions columns
+- Filtering by status and search query
+- Sorting by multiple fields with ascending/descending toggle
+- Pagination with configurable page size
+- Delete confirmation modal
+- Export functionality for completed companies
+- Row click navigation to results/progress pages
+
+---
+
+### Task 8.2: Add Company Form Page ✅
+**Completed:** Company creation form
+- Form validation for company name and URL (with format normalization)
+- Industry selection dropdown
+- Advanced config panel (collapsible) with analysis mode presets
+- Sliders for maxPages, maxDepth, timeLimitMinutes
+- Social media link following toggles
+- Submit creates company and redirects to progress page
+
+---
+
+### Task 8.3: Batch Upload Page ✅
+**Completed:** CSV batch upload interface
+- Drag-and-drop file zone
+- CSV parsing with row validation
+- Preview table showing valid/invalid rows with errors
+- Template download functionality
+- Confirm upload for valid rows only
+
+---
+
+### Task 8.4: Progress View Page ✅
+**Completed:** Real-time progress monitoring
+- Progress bar with percentage and phase labels
+- Stats: Pages crawled, Entities found, Tokens used
+- Time elapsed and estimated remaining
+- Current activity indicator
+- Pause/Resume/Cancel actions
+- Auto-redirect to results on completion
+
+---
+
+### Task 8.5: Results View Page ✅
+**Completed:** Analysis results display
+- Tabs: Summary, Entities, Pages, Token Usage (using Tabs component with content)
+- Summary tab with executive summary and analysis sections
+- Sidebar with company info, statistics, version info
+- Entity table with type filtering and pagination
+- Page table with type filtering and pagination
+- Token usage breakdown with cost estimation
+- Export dropdown
+- Re-scan confirmation modal
+
+---
+
+### Task 8.7: Settings Page ✅
+**Completed:** Configuration settings
+- Default analysis config persistence (localStorage)
+- Quick/Thorough mode presets
+- Sliders for crawling parameters
+- Social media following toggles
+- Save/Reset functionality
+- Unsaved changes indicator
 
 [Previous completed tasks will be moved here]
 

@@ -4,7 +4,7 @@
 
 This implementation plan covers the development of CIRA (Company Intelligence Research Assistant), a web-based application for automated company research and analysis. The plan is organized into 10 phases, with tasks sorted by priority within each phase.
 
-**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete, Phase 9 Tasks 9.1, 9.2, 9.5, 9.6 Complete (950 backend tests)
+**Project Status:** In Progress - Phase 1-6 Complete (834 backend tests), Phase 7 Complete (136 frontend tests), Phase 8 Tasks 8.1-8.5, 8.7 Complete, Phase 9 Tasks 9.1, 9.2, 9.4, 9.5, 9.6 Complete (1007 backend tests)
 
 **Tech Stack:**
 - Frontend: React 18+, TypeScript 5.0+, Vite 5.0+, TanStack Query 5.0+, Tailwind CSS 3.4+
@@ -1573,6 +1573,22 @@ This implementation plan covers the development of CIRA (Company Intelligence Re
 - File: `backend/app/services/url_validator.py`
 
 **Tests:** 38 passing tests in `tests/test_url_validator.py`
+
+---
+
+### Task 9.4: Batch Processing Queue Management ✅
+**Completed:** Batch queue management for orchestrating company processing
+- BatchJob model for tracking batch-level state and progress
+- BatchQueueService with fair round-robin scheduling across batches
+- Batch operations: create, start, pause, resume, cancel
+- Progress tracking with Redis caching and DB fallback
+- API endpoints for batch CRUD and control operations
+- Files:
+  - `backend/app/models/batch.py` - BatchJob model
+  - `backend/app/services/batch_queue_service.py` - Batch orchestration service
+  - `backend/app/api/routes/batch_queue.py` - REST API endpoints
+
+**Tests:** 57 passing tests in `tests/test_batch_queue_service.py` and `tests/test_batch_queue_api.py`
 
 ---
 

@@ -1,0 +1,201 @@
+# Production Docker Compose for CIRA
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+services:
+  # Backend Flask API (Production with Gunicorn)
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend.prod
+    container_name: cira-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///cira.db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Crawl configuration
+      - CRAWL_DEFAULT_MAX_PAGES=${CRAWL_DEFAULT_MAX_PAGES:-100}
+      - CRAWL_DEFAULT_MAX_DEPTH=${CRAWL_DEFAULT_MAX_DEPTH:-3}
+      - CRAWL_DEFAULT_TIME_LIMIT_MINUTES=${CRAWL_DEFAULT_TIME_LIMIT_MINUTES:-30}
+      - CRAWL_DEFAULT_RATE_LIMIT=${CRAWL_DEFAULT_RATE_LIMIT:-1}
+      # Analysis configuration
+      - ANALYSIS_DEFAULT_MODE=${ANALYSIS_DEFAULT_MODE:-thorough}
+      - ANALYSIS_MAX_RETRIES=${ANALYSIS_MAX_RETRIES:-3}
+      - ANALYSIS_TIMEOUT_SECONDS=${ANALYSIS_TIMEOUT_SECONDS:-60}
+      # Token pricing
+      - CLAUDE_INPUT_TOKEN_PRICE=${CLAUDE_INPUT_TOKEN_PRICE:-3.00}
+      - CLAUDE_OUTPUT_TOKEN_PRICE=${CLAUDE_OUTPUT_TOKEN_PRICE:-15.00}
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - cira-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Frontend (Production with Nginx)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend.prod
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:5000/api/v1}
+    container_name: cira-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cira-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # Redis for caching and Celery
+  redis:
+    image: redis:7-alpine
+    container_name: cira-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - cira-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # Celery Worker (Production)
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend.prod
+    container_name: cira-celery-worker
+    restart: unless-stopped
+    command: celery -A app.workers worker --loglevel=info --concurrency=4
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///cira.db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.workers", "inspect", "ping", "-d", "celery@$$HOSTNAME"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    networks:
+      - cira-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Celery Beat (Scheduler) - Optional
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend.prod
+    container_name: cira-celery-beat
+    restart: unless-stopped
+    command: celery -A app.workers beat --loglevel=info
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///cira.db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    volumes:
+      - backend_data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - cira-network
+    profiles:
+      - scheduler  # Only start when explicitly requested
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+volumes:
+  redis_data:
+    driver: local
+  backend_data:
+    driver: local
+  backend_logs:
+    driver: local
+
+networks:
+  cira-network:
+    driver: bridge

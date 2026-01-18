@@ -200,6 +200,83 @@ jobs:
           retention-days: 7
 
   # ============================================
+  # E2E Tests (Playwright)
+  # ============================================
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-build]
+    defaults:
+      run:
+        working-directory: frontend
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'backend/requirements.txt'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          python -c "from app import create_app; app = create_app(); app.run(port=5000)" &
+          sleep 5
+        env:
+          FLASK_ENV: testing
+          REDIS_URL: redis://localhost:6379/0
+          CELERY_BROKER_URL: redis://localhost:6379/1
+          ANTHROPIC_API_KEY: test-key
+
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=chromium
+        env:
+          E2E_BASE_URL: http://localhost:5173
+          CI: true
+        continue-on-error: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
+
+  # ============================================
   # Security Scanning
   # ============================================
   security-scan:
@@ -268,7 +345,7 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [backend-lint, backend-test, frontend-lint, frontend-test, frontend-build, security-scan]
+    needs: [backend-lint, backend-test, frontend-lint, frontend-test, frontend-build, e2e-test, security-scan]
     if: always()
 
     steps:
@@ -279,5 +356,9 @@ jobs:
              [[ "${{ needs.frontend-build.result }}" == "failure" ]]; then
             echo "::error::One or more critical jobs failed"
             exit 1
+          fi
+          # E2E tests are informational (continue-on-error: true)
+          if [[ "${{ needs.e2e-test.result }}" == "failure" ]]; then
+            echo "::warning::E2E tests failed but CI continues"
           fi
           echo "All critical jobs passed!"

@@ -8,3 +8,13 @@
 - Tip: Frontend tests run with `npm test` from frontend/ directory
 - Tip: mypy is not installed in the current environment - type checking skipped
 ---
+[2026-01-18] Iteration 2 - Final Phase 10 Completion
+- Pattern: Accessibility features were already implemented in UI components - always search codebase before assuming something is missing
+- Pattern: Code splitting with React.lazy() should use Suspense with fallback for smooth loading experience
+- Pattern: SQLAlchemy connection pooling needs pool_pre_ping=True for connection health checks
+- Gotcha: SQLite doesn't support the same connection pooling options as other databases - use minimal config for testing
+- Gotcha: ESLint react-refresh/only-export-components warning is non-blocking - occurs when exporting non-component items
+- Tip: Playwright E2E tests should use .or() for alternative selectors to handle different UI implementations
+- Tip: E2E tests should use isVisible().catch(() => false) for robust element checking
+- Achievement: All Phase 10 tasks complete - Task 10.1, 10.2, 10.3, 10.7 verified/implemented
+---

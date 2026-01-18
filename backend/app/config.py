@@ -14,6 +14,15 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///cira.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # SQLAlchemy Connection Pooling (NFR-PER-004: Queries < 100ms)
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': int(os.environ.get('DB_POOL_SIZE', '10')),
+        'pool_recycle': int(os.environ.get('DB_POOL_RECYCLE', '3600')),  # 1 hour
+        'pool_pre_ping': True,  # Verify connections before use
+        'pool_timeout': int(os.environ.get('DB_POOL_TIMEOUT', '30')),
+        'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', '20')),
+    }
+
     # Redis
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
@@ -59,6 +68,11 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
+
+    # Use NullPool for SQLite in-memory testing (SQLite doesn't support multi-connection pooling)
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+    }
 
 
 class ProductionConfig(Config):

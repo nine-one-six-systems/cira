@@ -42,8 +42,9 @@ export { ProgressBar } from './ProgressBar';
 export type { ProgressBarProps } from './ProgressBar';
 
 // Badge
-export { Badge, getStatusBadgeVariant } from './Badge';
+export { Badge } from './Badge';
 export type { BadgeProps, BadgeVariant } from './Badge';
+export { getStatusBadgeVariant } from './badgeUtils';
 
 // Tabs
 export { Tabs } from './Tabs';

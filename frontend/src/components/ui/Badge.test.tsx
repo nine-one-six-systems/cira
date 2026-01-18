@@ -4,7 +4,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Badge, getStatusBadgeVariant } from './Badge';
+import { Badge } from './Badge';
+import { getStatusBadgeVariant } from './badgeUtils';
 
 describe('Badge', () => {
   it('renders children', () => {

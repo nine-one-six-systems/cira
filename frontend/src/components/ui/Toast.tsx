@@ -2,7 +2,10 @@
  * Toast Component and Context
  *
  * A notification system with toast messages.
+ * The useToast hook is exported alongside ToastProvider as they are
+ * tightly coupled - the hook requires the context from the provider.
  */
+/* eslint-disable react-refresh/only-export-components */
 
 import {
   createContext,

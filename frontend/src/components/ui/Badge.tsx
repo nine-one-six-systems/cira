@@ -61,21 +61,4 @@ export function Badge({
   );
 }
 
-// Helper function to map company status to badge variant
-export function getStatusBadgeVariant(status: string): BadgeVariant {
-  switch (status) {
-    case 'completed':
-      return 'success';
-    case 'in_progress':
-      return 'warning';
-    case 'failed':
-      return 'error';
-    case 'paused':
-      return 'info';
-    case 'pending':
-    default:
-      return 'default';
-  }
-}
-
 export default Badge;

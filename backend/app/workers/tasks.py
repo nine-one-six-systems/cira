@@ -163,6 +163,13 @@ def extract_entities(self, company_id: str, page_ids: list[str] | None = None):
     """
     Task to extract entities from crawled pages.
 
+    This task:
+    1. Loads crawled pages for the company
+    2. Uses spaCy NLP to extract named entities (PERSON, ORG, GPE, DATE, MONEY)
+    3. Uses regex patterns to extract structured data (emails, phones, addresses, social handles)
+    4. Deduplicates entities across pages
+    5. Stores results in the database
+
     Args:
         company_id: UUID of the company
         page_ids: Optional list of specific page IDs to process
@@ -171,8 +178,8 @@ def extract_entities(self, company_id: str, page_ids: list[str] | None = None):
         Dict with extraction results
     """
     from app import db
-    from app.models import Company
-    from app.models.enums import ProcessingPhase
+    from app.models import Company, Page, Entity
+    from app.models.enums import ProcessingPhase, EntityType
 
     logger.info(f"Starting entity extraction for company {company_id}")
 
@@ -189,15 +196,141 @@ def extract_entities(self, company_id: str, page_ids: list[str] | None = None):
         redis_service.set_progress(company_id, {
             'phase': 'extracting',
             'entities_extracted': 0,
-            'current_activity': 'Extracting entities from pages...'
+            'current_activity': 'Initializing extraction pipeline...'
         })
 
-        # TODO: Actual extraction logic will be implemented in Phase 5
-        logger.info(f"Entity extraction completed for company {company_id}")
+        # Import extractors
+        from app.extractors.nlp_pipeline import nlp_pipeline
+        from app.extractors.structured_extractor import structured_extractor
+        from app.extractors.deduplicator import deduplicator
+
+        # Get pages to process
+        if page_ids:
+            pages = Page.query.filter(
+                Page.company_id == company_id,
+                Page.id.in_(page_ids)
+            ).all()
+        else:
+            pages = Page.query.filter_by(company_id=company_id).filter(
+                Page.extracted_text.isnot(None),
+                Page.extracted_text != ''
+            ).all()
+
+        if not pages:
+            logger.info(f"No pages with content found for company {company_id}")
+            return {
+                'company_id': company_id,
+                'status': 'completed',
+                'entities_extracted': 0,
+                'message': 'No pages with content to process'
+            }
+
+        # Collect all entities
+        all_entities: list[dict] = []
+        total_pages = len(pages)
+
+        for i, page in enumerate(pages):
+            # Update progress
+            redis_service.set_progress(company_id, {
+                'phase': 'extracting',
+                'pages_processed': i + 1,
+                'total_pages': total_pages,
+                'entities_extracted': len(all_entities),
+                'current_activity': f'Extracting from page {i + 1}/{total_pages}...'
+            })
+
+            text = page.extracted_text or ''
+            if not text.strip():
+                continue
+
+            # Extract named entities using NLP
+            nlp_entities = nlp_pipeline.process_text(text)
+            for ent in nlp_entities:
+                entity_type = nlp_pipeline.LABEL_MAPPING.get(ent.label)
+                if entity_type and entity_type != 'other':
+                    all_entities.append({
+                        'type': entity_type,
+                        'value': ent.text,
+                        'confidence': ent.confidence,
+                        'context': ent.context_snippet,
+                        'source_url': page.url,
+                        'extra_data': ent.extra_data,
+                    })
+
+            # Extract structured data
+            structured_entities = structured_extractor.extract_all(text, page.url)
+            for sent in structured_entities:
+                all_entities.append({
+                    'type': sent.entity_type,
+                    'value': sent.value,
+                    'confidence': sent.confidence,
+                    'context': sent.context,
+                    'source_url': page.url,
+                    'extra_data': sent.extra_data,
+                })
+
+        # Deduplicate entities
+        redis_service.set_progress(company_id, {
+            'phase': 'extracting',
+            'pages_processed': total_pages,
+            'total_pages': total_pages,
+            'entities_extracted': len(all_entities),
+            'current_activity': 'Deduplicating entities...'
+        })
+
+        merged_entities = deduplicator.deduplicate_entities(all_entities)
+
+        # Save to database
+        saved_count = 0
+        for merged in merged_entities:
+            try:
+                # Map type string to enum
+                try:
+                    entity_type = EntityType(merged.entity_type)
+                except ValueError:
+                    logger.warning(f"Unknown entity type: {merged.entity_type}")
+                    continue
+
+                entity = Entity(
+                    company_id=company_id,
+                    entity_type=entity_type,
+                    entity_value=merged.entity_value,
+                    context_snippet=merged.contexts[0] if merged.contexts else None,
+                    source_url=merged.source_urls[0] if merged.source_urls else None,
+                    confidence_score=merged.confidence_score,
+                    extra_data={
+                        'canonical': merged.canonical_value,
+                        'mentions': merged.mention_count,
+                        'all_sources': merged.source_urls,
+                        **merged.extra_data
+                    },
+                )
+                db.session.add(entity)
+                saved_count += 1
+            except Exception as e:
+                logger.warning(f"Failed to save entity: {e}")
+
+        db.session.commit()
+
+        # Update final progress
+        redis_service.set_progress(company_id, {
+            'phase': 'extracting',
+            'pages_processed': total_pages,
+            'total_pages': total_pages,
+            'entities_extracted': saved_count,
+            'current_activity': 'Entity extraction completed'
+        })
+
+        logger.info(
+            f"Entity extraction completed for company {company_id}: "
+            f"{saved_count} entities from {total_pages} pages"
+        )
         return {
             'company_id': company_id,
             'status': 'completed',
-            'entities_extracted': 0
+            'pages_processed': total_pages,
+            'entities_extracted': saved_count,
+            'entities_before_dedup': len(all_entities),
         }
 
     except PermanentError:

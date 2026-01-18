@@ -7,6 +7,7 @@ from flask_cors import CORS
 
 from app.config import Config, get_config
 from app.services.redis_service import redis_service
+from app.middleware.security import init_security_middleware
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -53,6 +54,9 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Configure logging
     configure_logging(app)
+
+    # Initialize security middleware (NFR-SEC-005: Secure headers)
+    init_security_middleware(app)
 
     # Create database tables if they don't exist
     with app.app_context():

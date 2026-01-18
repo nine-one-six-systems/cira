@@ -5,6 +5,8 @@ Provides endpoints for downloading company analysis in various formats:
 - Word (.docx)
 - PDF (.pdf)
 - JSON (.json)
+
+Security: Implements NFR-SEC-005 secure download headers.
 """
 
 from flask import Response, request
@@ -14,6 +16,7 @@ from app import db
 from app.models.company import Company, Analysis
 from app.models.enums import CompanyStatus
 from app.services.export_service import generate_export
+from app.middleware.security import get_secure_download_headers
 
 
 VALID_FORMATS = ["markdown", "word", "pdf", "json"]
@@ -128,10 +131,10 @@ def export_company(company_id: str) -> Response | tuple[dict, int]:
             },
         }, 500
 
-    # Return file response
+    # Return file response with secure headers (NFR-SEC-005)
     response = Response(content, content_type=content_type)
-    response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    secure_headers = get_secure_download_headers(filename, content_type)
+    for header, value in secure_headers.items():
+        response.headers[header] = value
 
     return response

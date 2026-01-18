@@ -1,0 +1,10 @@
+---
+[2026-01-18] Iteration 1
+- Pattern: Security middleware should be initialized before other extensions in Flask app factory to ensure headers are applied consistently
+- Pattern: Use get_secure_download_headers() utility for all file downloads to ensure consistent security headers
+- Gotcha: Company model uses `company_name` field, not `name` - check model definitions before writing test fixtures
+- Gotcha: Python 3.14 on this machine uses `python3` command, not `python`
+- Tip: Backend test suite with pytest can be run from backend/ directory: `python3 -m pytest tests/ -v`
+- Tip: Frontend tests run with `npm test` from frontend/ directory
+- Tip: mypy is not installed in the current environment - type checking skipped
+---

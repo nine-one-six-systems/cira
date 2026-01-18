@@ -355,6 +355,13 @@ def analyze_content(self, company_id: str, sections: list[str] | None = None):
     """
     Task to analyze content using Claude API.
 
+    This task:
+    1. Loads crawled pages and extracted entities
+    2. Passes content to Claude API for analysis
+    3. Generates structured analysis sections
+    4. Tracks token usage and costs
+    5. Stores results in the database
+
     Args:
         company_id: UUID of the company
         sections: Optional list of specific sections to analyze
@@ -365,6 +372,8 @@ def analyze_content(self, company_id: str, sections: list[str] | None = None):
     from app import db
     from app.models import Company
     from app.models.enums import ProcessingPhase
+    from app.analysis.synthesis import analysis_synthesizer
+    from app.analysis.prompts import get_section_order, ANALYSIS_SECTIONS
 
     logger.info(f"Starting content analysis for company {company_id}")
 
@@ -377,25 +386,51 @@ def analyze_content(self, company_id: str, sections: list[str] | None = None):
         company.processing_phase = ProcessingPhase.ANALYZING
         db.session.commit()
 
-        # Update Redis progress
-        redis_service.set_progress(company_id, {
-            'phase': 'analyzing',
-            'sections_completed': 0,
-            'current_activity': 'Analyzing content with AI...'
-        })
+        # Progress callback to update Redis
+        def progress_callback(section_id: str, completed: int, total: int):
+            section_name = 'Complete' if section_id == 'complete' else \
+                ANALYSIS_SECTIONS.get(section_id, {}).name if hasattr(ANALYSIS_SECTIONS.get(section_id, {}), 'name') else section_id
+            redis_service.set_progress(company_id, {
+                'phase': 'analyzing',
+                'sections_completed': completed,
+                'sections_total': total,
+                'current_section': section_id,
+                'current_activity': f'Analyzing: {section_name}...' if section_id != 'complete' else 'Analysis complete'
+            })
 
-        # TODO: Actual analysis logic will be implemented in Phase 6
-        logger.info(f"Content analysis completed for company {company_id}")
+        # Run the full analysis
+        result = analysis_synthesizer.run_full_analysis(
+            company_id=company_id,
+            progress_callback=progress_callback,
+        )
+
+        logger.info(
+            f"Content analysis completed for company {company_id}: "
+            f"{len([s for s in result.sections.values() if s.success])}/{len(result.sections)} sections, "
+            f"{result.total_tokens} tokens"
+        )
+
         return {
             'company_id': company_id,
-            'status': 'completed',
-            'sections_analyzed': []
+            'status': 'completed' if result.success else 'partial',
+            'sections_analyzed': list(result.sections.keys()),
+            'total_tokens': result.total_tokens,
+            'errors': result.errors,
         }
 
     except PermanentError:
         raise
     except Exception as e:
         logger.error(f"Content analysis failed for company {company_id}: {e}")
+        # Update status to failed
+        try:
+            company = db.session.get(Company, company_id)
+            if company:
+                from app.models.enums import CompanyStatus
+                company.status = CompanyStatus.FAILED
+                db.session.commit()
+        except Exception:
+            pass
         raise
 
 
@@ -411,6 +446,14 @@ def generate_summary(self, company_id: str):
     """
     Task to generate the final summary from analysis sections.
 
+    This task:
+    1. Checks that analysis is complete
+    2. Marks the company as COMPLETED
+    3. Updates final timestamps
+
+    Note: The executive summary is now generated as part of analyze_content.
+    This task serves as the final step to mark completion.
+
     Args:
         company_id: UUID of the company
 
@@ -418,7 +461,7 @@ def generate_summary(self, company_id: str):
         Dict with summary generation results
     """
     from app import db
-    from app.models import Company
+    from app.models import Company, Analysis
     from app.models.enums import ProcessingPhase, CompanyStatus
 
     logger.info(f"Starting summary generation for company {company_id}")
@@ -435,20 +478,44 @@ def generate_summary(self, company_id: str):
         # Update Redis progress
         redis_service.set_progress(company_id, {
             'phase': 'generating',
-            'current_activity': 'Generating final summary...'
+            'current_activity': 'Finalizing analysis...'
         })
 
-        # TODO: Actual summary generation logic will be implemented in Phase 6
+        # Check that analysis exists
+        analysis = Analysis.query.filter_by(
+            company_id=company_id
+        ).order_by(Analysis.version_number.desc()).first()
+
+        if not analysis:
+            logger.warning(f"No analysis found for company {company_id}")
+            # Run analysis if missing
+            analyze_content.delay(company_id)
+            return {
+                'company_id': company_id,
+                'status': 'pending_analysis',
+                'message': 'Analysis not found, triggering analysis task'
+            }
+
         # Mark as completed
         company.processing_phase = ProcessingPhase.COMPLETED
         company.status = CompanyStatus.COMPLETED
-        company.completed_at = datetime.utcnow()
+        company.completed_at = datetime.now(tz=None)
         db.session.commit()
+
+        # Update Redis with final progress
+        redis_service.set_progress(company_id, {
+            'phase': 'completed',
+            'current_activity': 'Analysis complete',
+            'sections_completed': 8,
+            'sections_total': 8,
+        })
 
         logger.info(f"Summary generation completed for company {company_id}")
         return {
             'company_id': company_id,
-            'status': 'completed'
+            'status': 'completed',
+            'analysis_version': analysis.version_number,
+            'has_executive_summary': bool(analysis.executive_summary),
         }
 
     except PermanentError:

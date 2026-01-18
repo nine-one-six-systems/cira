@@ -43,3 +43,27 @@ def get_checkpoint_service_class():
     """Get the CheckpointService class (lazy load to avoid circular imports)."""
     from app.services.checkpoint_service import CheckpointService
     return CheckpointService
+
+
+def get_anthropic_service():
+    """Get the Anthropic service instance (lazy load to avoid circular imports)."""
+    from app.services.anthropic_service import anthropic_service
+    return anthropic_service
+
+
+def get_anthropic_service_class():
+    """Get the AnthropicService class (lazy load to avoid circular imports)."""
+    from app.services.anthropic_service import AnthropicService
+    return AnthropicService
+
+
+def get_token_tracker():
+    """Get the token tracker instance (lazy load to avoid circular imports)."""
+    from app.services.token_tracker import token_tracker
+    return token_tracker
+
+
+def get_token_tracker_class():
+    """Get the TokenTracker class (lazy load to avoid circular imports)."""
+    from app.services.token_tracker import TokenTracker
+    return TokenTracker

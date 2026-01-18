@@ -1,13 +1,16 @@
 """Company and related models."""
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import uuid
 
 from sqlalchemy import String, Text, Integer, Float, DateTime, Enum, JSON, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
+
+if TYPE_CHECKING:
+    from app.models.batch import BatchJob
 from app.models.enums import (
     CompanyStatus,
     CrawlStatus,
@@ -38,6 +41,11 @@ class Company(db.Model):
     company_name: Mapped[str] = mapped_column(String(200), nullable=False)
     website_url: Mapped[str] = mapped_column(String(500), nullable=False)
     industry: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    # Batch association (optional - companies can exist outside of batches)
+    batch_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey('batch_jobs.id', ondelete='SET NULL'), nullable=True, index=True
+    )
 
     # Analysis configuration
     analysis_mode: Mapped[AnalysisMode] = mapped_column(
@@ -72,6 +80,9 @@ class Company(db.Model):
     total_paused_duration_ms: Mapped[int] = mapped_column(Integer, default=0)
 
     # Relationships
+    batch: Mapped['BatchJob | None'] = relationship(
+        'BatchJob', back_populates='companies'
+    )
     crawl_sessions: Mapped[list['CrawlSession']] = relationship(
         'CrawlSession', back_populates='company', cascade='all, delete-orphan'
     )
@@ -90,6 +101,7 @@ class Company(db.Model):
 
     __table_args__ = (
         Index('ix_companies_status_created', 'status', 'created_at'),
+        Index('ix_companies_batch_status', 'batch_id', 'status'),
     )
 
     def to_dict(self) -> dict[str, Any]:
@@ -99,6 +111,7 @@ class Company(db.Model):
             'companyName': self.company_name,
             'websiteUrl': self.website_url,
             'industry': self.industry,
+            'batchId': self.batch_id,
             'analysisMode': self.analysis_mode.value,
             'status': self.status.value,
             'totalTokensUsed': self.total_tokens_used,

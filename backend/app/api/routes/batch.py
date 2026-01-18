@@ -10,6 +10,7 @@ from app.api.routes.companies import make_error_response, make_success_response,
 from app.models.company import Company
 from app.schemas import BatchUploadResponse, BatchCompanyResult
 from app.schemas.company import URL_DOMAIN_PATTERN
+from app.services.batch_queue_service import batch_queue_service
 
 
 # CSV Template
@@ -187,14 +188,33 @@ def batch_upload():
         successful = sum(1 for r in results if r.error is None)
         failed = sum(1 for r in results if r.error is not None)
 
-        response = BatchUploadResponse(
+        response_data = BatchUploadResponse(
             totalCount=len(results),
             successful=successful,
             failed=failed,
             companies=[r.model_dump(by_alias=True) for r in results]
-        )
+        ).model_dump(by_alias=True)
 
-        return make_success_response(response.model_dump(by_alias=True), status=201)
+        # Create batch job if requested and there are successful companies
+        create_batch = request.form.get('createBatch', 'true').lower() == 'true'
+        start_processing = request.form.get('startProcessing', 'true').lower() == 'true'
+        batch_name = request.form.get('batchName')
+        batch_priority = request.form.get('priority', 100, type=int)
+
+        if create_batch and successful > 0:
+            company_ids = [c.id for c in companies_to_add]
+            batch_result = batch_queue_service.create_batch(
+                company_ids=company_ids,
+                name=batch_name or f'Batch Upload - {file.filename}',
+                config=None,
+                priority=batch_priority,
+                start_immediately=start_processing,
+            )
+            if batch_result.get('success'):
+                response_data['batchId'] = batch_result['batch_id']
+                response_data['batchStatus'] = 'processing' if start_processing else 'pending'
+
+        return make_success_response(response_data, status=201)
 
     except UnicodeDecodeError:
         return make_error_response(

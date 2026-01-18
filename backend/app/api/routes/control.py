@@ -197,3 +197,92 @@ def rescan_company(company_id: str):
     )
 
     return make_success_response(response.model_dump(by_alias=True))
+
+
+# ==================== Internal Functions for Batch Operations ====================
+
+def _pause_company_internal(company_id: str) -> dict:
+    """
+    Internal function to pause a company (used by batch queue service).
+
+    Args:
+        company_id: UUID of the company
+
+    Returns:
+        Dict with success status and any error
+    """
+    company = db.session.get(Company, company_id)
+    if not company:
+        return {'success': False, 'error': 'Company not found'}
+
+    if company.status != CompanyStatus.IN_PROGRESS:
+        return {'success': False, 'error': f'Cannot pause: status is {company.status.value}'}
+
+    # Update company status
+    company.status = CompanyStatus.PAUSED
+    company.paused_at = utcnow()
+
+    # Update active crawl session if any
+    active_session = (
+        CrawlSession.query
+        .filter_by(company_id=company_id, status=CrawlStatus.ACTIVE)
+        .first()
+    )
+
+    if active_session:
+        active_session.status = CrawlStatus.PAUSED
+        active_session.checkpoint_data = {
+            'pagesCrawled': active_session.pages_crawled,
+            'pagesQueued': active_session.pages_queued,
+            'crawlDepthReached': active_session.crawl_depth_reached,
+            'externalLinksFollowed': active_session.external_links_followed,
+            'pausedAt': company.paused_at.isoformat(),
+        }
+
+    db.session.commit()
+    return {'success': True, 'paused_at': company.paused_at.isoformat()}
+
+
+def _resume_company_internal(company_id: str) -> dict:
+    """
+    Internal function to resume a company (used by batch queue service).
+
+    Args:
+        company_id: UUID of the company
+
+    Returns:
+        Dict with success status and any error
+    """
+    company = db.session.get(Company, company_id)
+    if not company:
+        return {'success': False, 'error': 'Company not found'}
+
+    if company.status != CompanyStatus.PAUSED:
+        return {'success': False, 'error': f'Cannot resume: status is {company.status.value}'}
+
+    # Calculate paused duration
+    if company.paused_at:
+        paused_duration = int((utcnow() - company.paused_at).total_seconds() * 1000)
+        company.total_paused_duration_ms += paused_duration
+
+    # Get paused session to resume from
+    paused_session = (
+        CrawlSession.query
+        .filter_by(company_id=company_id, status=CrawlStatus.PAUSED)
+        .first()
+    )
+
+    if paused_session:
+        paused_session.status = CrawlStatus.ACTIVE
+
+    # Update company status
+    company.status = CompanyStatus.IN_PROGRESS
+    company.paused_at = None
+
+    db.session.commit()
+
+    # Trigger job continuation
+    from app.services.job_service import job_service
+    job_service._dispatch_next_phase(company_id)
+
+    return {'success': True, 'phase': company.processing_phase.value}

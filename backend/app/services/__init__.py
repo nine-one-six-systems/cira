@@ -67,3 +67,15 @@ def get_token_tracker_class():
     """Get the TokenTracker class (lazy load to avoid circular imports)."""
     from app.services.token_tracker import TokenTracker
     return TokenTracker
+
+
+def get_batch_queue_service():
+    """Get the batch queue service instance (lazy load to avoid circular imports)."""
+    from app.services.batch_queue_service import batch_queue_service
+    return batch_queue_service
+
+
+def get_batch_queue_service_class():
+    """Get the BatchQueueService class (lazy load to avoid circular imports)."""
+    from app.services.batch_queue_service import BatchQueueService
+    return BatchQueueService

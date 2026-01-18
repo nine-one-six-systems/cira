@@ -71,3 +71,12 @@ class ApiCallType(enum.Enum):
     EXTRACTION = 'extraction'
     SUMMARIZATION = 'summarization'
     ANALYSIS = 'analysis'
+
+
+class BatchStatus(enum.Enum):
+    """Status of a batch job."""
+    PENDING = 'pending'        # Batch created but not started
+    PROCESSING = 'processing'  # Batch has companies being processed
+    COMPLETED = 'completed'    # All companies in batch completed or failed
+    CANCELLED = 'cancelled'    # Batch was cancelled by user
+    PAUSED = 'paused'          # Batch processing is paused

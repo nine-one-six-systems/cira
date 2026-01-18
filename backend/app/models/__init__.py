@@ -8,7 +8,9 @@ from app.models.enums import (
     PageType,
     EntityType,
     ApiCallType,
+    BatchStatus,
 )
+from app.models.batch import BatchJob
 from app.models.company import (
     Company,
     CrawlSession,
@@ -27,7 +29,9 @@ __all__ = [
     'PageType',
     'EntityType',
     'ApiCallType',
+    'BatchStatus',
     # Models
+    'BatchJob',
     'Company',
     'CrawlSession',
     'Page',

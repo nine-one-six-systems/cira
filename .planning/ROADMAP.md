@@ -10,7 +10,7 @@
 | Phase | Name | Goal | Requirements | Status |
 |-------|------|------|--------------|--------|
 | 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 | ✓ Complete |
-| 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 | Pending |
+| 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 | In Progress |
 | 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 | Pending |
 | 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 | Pending |
 | 5 | Export | Output analysis in multiple formats | EXP-01 to EXP-05 | Pending |
@@ -75,6 +75,17 @@ Plans:
 **Goal:** Extract structured entities (people, organizations, products, contact info) from crawled pages using spaCy NLP.
 
 **Requirements:** NER-01 to NER-07, API-10, UI-05
+
+**Status:** In Progress
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Extraction pipeline integration tests
+- [ ] 02-02-PLAN.md — Entities API integration tests
+- [ ] 02-03-PLAN.md — Extraction edge case and robustness tests
+- [ ] 02-04-PLAN.md — Frontend entity browser tests
+- [ ] 02-05-PLAN.md — Verification and requirement mapping
 
 ### Deliverables
 

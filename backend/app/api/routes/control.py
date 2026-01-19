@@ -84,7 +84,13 @@ def resume_company(company_id: str):
 
     # Calculate paused duration
     if company.paused_at:
-        paused_duration = int((utcnow() - company.paused_at).total_seconds() * 1000)
+        # Handle both timezone-aware and naive datetimes from DB
+        now = utcnow()
+        paused_at = company.paused_at
+        if paused_at.tzinfo is None:
+            # DB returned naive datetime, strip timezone from now
+            now = now.replace(tzinfo=None)
+        paused_duration = int((now - paused_at).total_seconds() * 1000)
         company.total_paused_duration_ms += paused_duration
 
     # Get paused session to resume from
@@ -262,7 +268,13 @@ def _resume_company_internal(company_id: str) -> dict:
 
     # Calculate paused duration
     if company.paused_at:
-        paused_duration = int((utcnow() - company.paused_at).total_seconds() * 1000)
+        # Handle both timezone-aware and naive datetimes from DB
+        now = utcnow()
+        paused_at = company.paused_at
+        if paused_at.tzinfo is None:
+            # DB returned naive datetime, strip timezone from now
+            now = now.replace(tzinfo=None)
+        paused_duration = int((now - paused_at).total_seconds() * 1000)
         company.total_paused_duration_ms += paused_duration
 
     # Get paused session to resume from

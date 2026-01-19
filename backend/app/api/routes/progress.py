@@ -37,7 +37,13 @@ def get_progress(company_id: str):
     # Calculate time elapsed (in seconds)
     time_elapsed = 0
     if company.started_at:
-        elapsed_delta = utcnow() - company.started_at
+        # Handle both timezone-aware and naive datetimes from DB
+        now = utcnow()
+        started_at = company.started_at
+        if started_at.tzinfo is None:
+            # DB returned naive datetime, strip timezone from now
+            now = now.replace(tzinfo=None)
+        elapsed_delta = now - started_at
         # Subtract paused duration
         paused_ms = company.total_paused_duration_ms or 0
         time_elapsed = int(elapsed_delta.total_seconds()) - (paused_ms // 1000)

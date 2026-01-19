@@ -86,11 +86,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Human verification checkpoint | 03-05 | Require user approval before marking phase complete |
 | Dedicated test file for UI-07 | 04-04 | Focused testing of pause/resume UI separate from general progress tests |
 | act() with fake timers | 04-04 | Proper handling of useEffect timeout for auto-redirect |
+| Class-based edge test organization | 04-03 | 8 test classes mirroring test_extraction_edge_cases.py pattern |
+| Mock Redis for concurrency | 04-03 | Test locking behavior without requiring actual Redis |
 
 ## Session Continuity
 
-Last session: 2026-01-19T23:21:27Z
-Stopped at: Completed 04-04-PLAN.md (Pause/Resume UI Tests)
+Last session: 2026-01-19T23:24:00Z
+Stopped at: Completed 04-03-PLAN.md (State Edge Case Tests)
 Resume file: None
 
 ## Blockers

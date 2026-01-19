@@ -88,11 +88,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | act() with fake timers | 04-04 | Proper handling of useEffect timeout for auto-redirect |
 | Class-based edge test organization | 04-03 | 8 test classes mirroring test_extraction_edge_cases.py pattern |
 | Mock Redis for concurrency | 04-03 | Test locking behavior without requiring actual Redis |
+| naive_utcnow for SQLite | 04-02 | Use naive datetimes in tests to avoid timezone mismatch with SQLite |
+| Handle HTTP date format | 04-02 | Flask serializes datetime to RFC 2822 format, not ISO 8601 |
 
 ## Session Continuity
 
-Last session: 2026-01-19T23:26:00Z
-Stopped at: Re-executed 04-01-PLAN.md (State Integration Tests)
+Last session: 2026-01-19T23:23:00Z
+Stopped at: Completed 04-02-PLAN.md (Control API Integration Tests)
 Resume file: None
 
 ## Blockers

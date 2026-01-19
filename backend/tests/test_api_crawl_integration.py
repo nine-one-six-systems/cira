@@ -438,3 +438,200 @@ class TestPagesEndpoint:
         assert data['meta']['total'] == 1
         assert len(data['data']) == 1
         assert data['data'][0]['pageType'] == 'about'
+
+
+class TestAPIEdgeCases:
+    """Edge case tests for API error handling and boundary conditions.
+
+    These tests verify robust handling of:
+    - Boundary conditions (max lengths, pagination limits)
+    - Invalid input formats
+    - Cascade deletion
+    - URL normalization
+
+    Requirements verified:
+    - API-01: Robust input validation
+    - API-03: Pagination boundary handling
+    - API-04: Error response consistency
+    """
+
+    def test_create_company_name_boundary_lengths(self, client):
+        """
+        API-01: Company name length validation.
+        - 200 chars: should succeed (boundary)
+        - 201 chars: should fail with VALIDATION_ERROR
+        """
+        # Test exactly 200 characters (should succeed)
+        name_200 = 'x' * 200
+        response = client.post('/api/v1/companies', json={
+            'companyName': name_200,
+            'websiteUrl': 'https://boundary-200.com'
+        })
+
+        assert response.status_code == 201, "200-char name should be accepted"
+        data = response.get_json()
+        assert data['success'] is True
+
+        # Test 201 characters (should fail)
+        name_201 = 'y' * 201
+        response = client.post('/api/v1/companies', json={
+            'companyName': name_201,
+            'websiteUrl': 'https://boundary-201.com'
+        })
+
+        assert response.status_code == 400, "201-char name should be rejected"
+        data = response.get_json()
+        assert data['success'] is False
+        assert data['error']['code'] == 'VALIDATION_ERROR'
+
+    def test_create_company_url_normalization(self, client, app):
+        """
+        API-01: URL normalization on creation.
+        Input: 'https://Example.COM/Page/'
+        Expected: URL stored normalized (trailing slash removed)
+        """
+        response = client.post('/api/v1/companies', json={
+            'companyName': 'Normalized URL Corp',
+            'websiteUrl': 'https://Example.COM/Page/'
+        })
+
+        assert response.status_code == 201
+        company_id = response.get_json()['data']['companyId']
+
+        # Verify URL is normalized in database
+        with app.app_context():
+            company = db.session.get(Company, company_id)
+            # Check trailing slash is removed
+            assert not company.website_url.endswith('/')
+            # Check URL is lowercased in domain part
+            assert 'example.com' in company.website_url.lower()
+
+    def test_list_companies_invalid_page_number(self, client, app):
+        """
+        API-03: Invalid page numbers are handled gracefully.
+        - page=-1: should clamp to page 1
+        - page=9999 (beyond total): should return empty data
+        """
+        # Create some companies
+        with app.app_context():
+            for i in range(5):
+                company = Company(
+                    company_name=f'Page Test Company {i}',
+                    website_url=f'https://pagetest{i}.com'
+                )
+                db.session.add(company)
+            db.session.commit()
+
+        # Test negative page number (should clamp to 1)
+        response = client.get('/api/v1/companies?page=-1')
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert data['meta']['page'] == 1, "Negative page should clamp to 1"
+        assert len(data['data']) > 0, "Should return first page data"
+
+        # Test page beyond total (should return empty)
+        response = client.get('/api/v1/companies?page=9999')
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert data['data'] == [], "Page beyond total should return empty array"
+        assert data['meta']['page'] == 9999, "Page number should be preserved"
+
+    def test_list_companies_page_size_capped(self, client, app):
+        """
+        API-03: Page size is capped at 100.
+        Request pageSize=500, expect meta.pageSize <= 100
+        """
+        # Create 150 companies to test capping
+        with app.app_context():
+            for i in range(150):
+                company = Company(
+                    company_name=f'Cap Test Company {i:03d}',
+                    website_url=f'https://captest{i:03d}.com'
+                )
+                db.session.add(company)
+            db.session.commit()
+
+        response = client.get('/api/v1/companies?pageSize=500')
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert data['meta']['pageSize'] <= 100, "Page size should be capped at 100"
+        assert len(data['data']) <= 100, "Returned data should respect cap"
+
+    def test_get_company_invalid_uuid_format(self, client):
+        """
+        API-04: Invalid UUID format returns 404, not 500 server error.
+        This ensures proper error handling vs. database errors.
+        """
+        response = client.get('/api/v1/companies/not-a-uuid')
+
+        # Should return 404 (not found), not 500 (server error)
+        assert response.status_code == 404, "Invalid UUID should return 404"
+        data = response.get_json()
+        assert data['success'] is False
+        assert data['error']['code'] == 'NOT_FOUND'
+
+    def test_delete_company_cascades_correctly(self, client, app):
+        """
+        API-04: DELETE /companies/:id cascades to related records.
+        Verify deletedRecords counts and that records are actually removed.
+        """
+        # Create company with related records
+        with app.app_context():
+            company = Company(
+                company_name='Cascade Delete Corp',
+                website_url='https://cascade-delete.com'
+            )
+            db.session.add(company)
+            db.session.flush()
+
+            # Add pages
+            for i in range(3):
+                page = Page(
+                    company_id=company.id,
+                    url=f'https://cascade-delete.com/page{i}'
+                )
+                db.session.add(page)
+
+            # Add entities
+            for i in range(5):
+                entity = Entity(
+                    company_id=company.id,
+                    entity_type=EntityType.PERSON,
+                    entity_value=f'Person {i}'
+                )
+                db.session.add(entity)
+
+            # Add analyses
+            for i in range(2):
+                analysis = Analysis(
+                    company_id=company.id,
+                    version_number=i + 1,
+                    executive_summary=f'Summary v{i + 1}'
+                )
+                db.session.add(analysis)
+
+            db.session.commit()
+            company_id = company.id
+
+        # Delete the company
+        response = client.delete(f'/api/v1/companies/{company_id}')
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['success'] is True
+        assert data['data']['deleted'] is True
+
+        # Verify deletedRecords counts
+        assert data['data']['deletedRecords']['pages'] == 3
+        assert data['data']['deletedRecords']['entities'] == 5
+        assert data['data']['deletedRecords']['analyses'] == 2
+
+        # Verify records are actually deleted from database
+        with app.app_context():
+            assert db.session.get(Company, company_id) is None
+            assert Page.query.filter_by(company_id=company_id).count() == 0
+            assert Entity.query.filter_by(company_id=company_id).count() == 0
+            assert Analysis.query.filter_by(company_id=company_id).count() == 0

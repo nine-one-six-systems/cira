@@ -603,12 +603,13 @@ class TestSitemapEdgeCases:
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </urlset>"""
 
-        # Test sitemap parser directly
-        parser = SitemapParser()
+        # Test sitemap parser directly with mock redis
+        mock_redis = MagicMock()
+        mock_redis.is_available = False
+        parser = SitemapParser(redis_svc=mock_redis)
 
         with patch.object(parser, '_fetch_sitemap', return_value=empty_sitemap_xml):
-            with patch.object(parser._redis, 'is_available', False):
-                result = parser.get_urls("https://example.com", force_refresh=True)
+            result = parser.get_urls("https://example.com", force_refresh=True)
 
         # Verify empty URL list returned (not an error)
         assert result.urls == []
@@ -628,11 +629,13 @@ class TestSitemapEdgeCases:
     </url>
 </urlset"""  # Missing closing tag
 
-        parser = SitemapParser()
+        # Test sitemap parser with mock redis
+        mock_redis = MagicMock()
+        mock_redis.is_available = False
+        parser = SitemapParser(redis_svc=mock_redis)
 
         with patch.object(parser, '_fetch_sitemap', return_value=malformed_xml):
-            with patch.object(parser._redis, 'is_available', False):
-                result = parser.get_urls("https://example.com", force_refresh=True)
+            result = parser.get_urls("https://example.com", force_refresh=True)
 
         # Verify graceful handling (empty or partial result, no crash)
         assert isinstance(result, SitemapResult)
@@ -657,7 +660,10 @@ class TestSitemapEdgeCases:
             f.write(sitemap_xml)
         gzipped_content = buffer.getvalue()
 
-        parser = SitemapParser()
+        # Test sitemap parser with mock redis
+        mock_redis = MagicMock()
+        mock_redis.is_available = False
+        parser = SitemapParser(redis_svc=mock_redis)
 
         # Mock _fetch_sitemap to return gzipped content
         def mock_fetch(url):
@@ -666,8 +672,7 @@ class TestSitemapEdgeCases:
             return sitemap_xml
 
         with patch.object(parser, '_fetch_sitemap', side_effect=mock_fetch):
-            with patch.object(parser._redis, 'is_available', False):
-                result = parser.get_urls("https://example.com/sitemap.xml.gz", force_refresh=True)
+            result = parser.get_urls("https://example.com/sitemap.xml.gz", force_refresh=True)
 
         # The parser should decompress and parse the content
         # Even if it doesn't find URLs (due to mocking), it shouldn't crash
@@ -695,7 +700,10 @@ class TestSitemapEdgeCases:
     <url><loc>https://example.com/page2</loc></url>
 </urlset>"""
 
-        parser = SitemapParser()
+        # Test sitemap parser with mock redis
+        mock_redis = MagicMock()
+        mock_redis.is_available = False
+        parser = SitemapParser(redis_svc=mock_redis)
 
         def mock_fetch(url):
             if 'sitemap1' in url:
@@ -705,8 +713,7 @@ class TestSitemapEdgeCases:
             return sitemap_index
 
         with patch.object(parser, '_fetch_sitemap', side_effect=mock_fetch):
-            with patch.object(parser._redis, 'is_available', False):
-                result = parser.get_urls("https://example.com", force_refresh=True)
+            result = parser.get_urls("https://example.com", force_refresh=True)
 
         # Verify URLs from both sitemaps collected
         urls = [u.url for u in result.urls]
@@ -726,7 +733,10 @@ class TestRobotsEdgeCases:
 
         Verifies CRL-02: All URLs are allowed (permissive default).
         """
-        parser = RobotsParser()
+        # Test robots parser with mock redis
+        mock_redis = MagicMock()
+        mock_redis.is_available = False
+        parser = RobotsParser(redis_svc=mock_redis)
 
         # Mock the fetch to return 404
         with patch.object(parser, '_fetch_robots') as mock_fetch:
@@ -736,8 +746,7 @@ class TestRobotsEdgeCases:
                 fetch_time=time.time(),
             )
 
-            with patch.object(parser._redis, 'is_available', False):
-                rules = parser.get_rules("https://example.com/page", force_refresh=True)
+            rules = parser.get_rules("https://example.com/page", force_refresh=True)
 
         # Verify permissive default
         assert rules.found is False

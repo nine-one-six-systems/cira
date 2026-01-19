@@ -3,17 +3,17 @@
 ## Current Position
 
 **Milestone:** v1.0 - Core Intelligence Platform
-**Phase:** 2 - Entity Extraction IN PROGRESS (4/5 plans)
+**Phase:** 3 - AI Analysis IN PROGRESS (2/5 plans)
 **Status:** In progress
 
-Progress: [########__] 80% (4/5 Phase 2 plans complete)
+Progress: [####______] 40% (2/5 Phase 3 plans complete)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Users can research any company by entering a URL and receive a comprehensive intelligence brief without manual research work.
-**Current focus:** Phase 2 Entity Extraction - Extraction pipeline integration tests complete
+**Current focus:** Phase 3 AI Analysis - Tokens API integration tests complete
 
 ## Phase 1 Summary
 
@@ -21,15 +21,20 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 **Requirements covered:** CRL-01-07, API-01/03/04, UI-01/02 (12 total)
 **Verification report:** .planning/phases/01-web-crawling/01-VERIFICATION.md
 
-## Phase 2 Progress
+## Phase 2 Summary
+
+**Status:** Complete
+**Requirements covered:** NER-01 through NER-07 (7 total)
+
+## Phase 3 Progress
 
 | Plan | Name | Status |
 |------|------|--------|
-| 02-01 | Extraction Pipeline Integration | Complete |
-| 02-02 | Entities API Integration Tests | Complete |
-| 02-03 | Extraction Edge Case Tests | Complete |
-| 02-04 | UI Entity Browser Tests | Complete |
-| 02-05 | Phase Verification | Pending |
+| 03-01 | Analysis Pipeline Integration | Complete |
+| 03-02 | Tokens API Integration Tests | Complete |
+| 03-03 | Analysis Edge Case Tests | Pending |
+| 03-04 | UI Analysis Display Tests | Pending |
+| 03-05 | Phase Verification | Pending |
 
 ## Workflow Preferences
 
@@ -58,11 +63,14 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Test pagination via clicks | 02-04 | Test pagination state changes by clicking buttons rather than mocking state |
 | Realistic text fixtures | 02-01 | Mirrors actual company website content for extraction testing |
 | Requirement traceability in test docstrings | 02-01 | Maps tests to NER-01 through NER-07 requirements |
+| byApiCall individual records | 03-02 | API returns each TokenUsage record separately, allowing retry visibility |
+| Timestamp ordering | 03-02 | Token records ordered newest first (DESC) per existing implementation |
+| Cost from company model | 03-02 | estimatedCost sourced from company.estimated_cost, not calculated |
 
 ## Session Continuity
 
-Last session: 2026-01-19T21:48:21Z
-Stopped at: Completed 02-01-PLAN.md (Extraction Pipeline Integration)
+Last session: 2026-01-19T22:48:03Z
+Stopped at: Completed 03-02-PLAN.md (Tokens API Integration Tests)
 Resume file: None
 
 ## Blockers
@@ -71,9 +79,9 @@ None currently.
 
 ## Next Steps
 
-1. Continue Phase 2: Plan 02-05 (Phase Verification)
-2. Run Phase 2 verification
-3. Begin Phase 3 planning
+1. Continue Phase 3: Plan 03-03 (Analysis Edge Case Tests)
+2. Complete remaining Phase 3 plans (03-04, 03-05)
+3. Run Phase 3 verification
 
 ---
 *Last updated: 2026-01-19*

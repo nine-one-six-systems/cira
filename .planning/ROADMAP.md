@@ -24,6 +24,15 @@
 
 **Requirements:** CRL-01 to CRL-07, API-01, API-03, API-04, UI-01, UI-02
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Crawl pipeline integration tests
+- [ ] 01-02-PLAN.md — API integration tests for company CRUD
+- [ ] 01-03-PLAN.md — Crawler edge case and robustness tests
+- [ ] 01-04-PLAN.md — Frontend component tests (AddCompany, Dashboard)
+- [ ] 01-05-PLAN.md — Verification and requirement mapping
+
 ### Deliverables
 
 - Sitemap parser that discovers pages from sitemap.xml

@@ -9,13 +9,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Web Crawling
 
-- [ ] **CRL-01**: System discovers pages via sitemap.xml parsing
-- [ ] **CRL-02**: System renders JavaScript content via Playwright
-- [ ] **CRL-03**: System respects robots.txt directives
-- [ ] **CRL-04**: System rate limits requests (1/sec, 3 concurrent max)
-- [ ] **CRL-05**: System prioritizes high-value pages (about, team, products, contact)
-- [ ] **CRL-06**: User can configure max pages and depth limits
-- [ ] **CRL-07**: System extracts and queues external social links (LinkedIn, Twitter, Facebook)
+- [x] **CRL-01**: System discovers pages via sitemap.xml parsing
+- [x] **CRL-02**: System renders JavaScript content via Playwright
+- [x] **CRL-03**: System respects robots.txt directives
+- [x] **CRL-04**: System rate limits requests (1/sec, 3 concurrent max)
+- [x] **CRL-05**: System prioritizes high-value pages (about, team, products, contact)
+- [x] **CRL-06**: User can configure max pages and depth limits
+- [x] **CRL-07**: System extracts and queues external social links (LinkedIn, Twitter, Facebook)
 
 ### Entity Extraction
 
@@ -65,10 +65,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API
 
-- [ ] **API-01**: POST /companies creates single company job
+- [x] **API-01**: POST /companies creates single company job
 - [ ] **API-02**: POST /companies/batch uploads CSV batch
-- [ ] **API-03**: GET /companies lists companies with pagination and filtering
-- [ ] **API-04**: GET /companies/:id returns company with latest analysis
+- [x] **API-03**: GET /companies lists companies with pagination and filtering
+- [x] **API-04**: GET /companies/:id returns company with latest analysis
 - [ ] **API-05**: GET /companies/:id/progress returns real-time progress
 - [ ] **API-06**: POST /companies/:id/pause pauses in-progress job
 - [ ] **API-07**: POST /companies/:id/resume resumes paused job
@@ -78,8 +78,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UI
 
-- [ ] **UI-01**: User can submit single company via form (name, URL, config)
-- [ ] **UI-02**: User can view company list with status badges
+- [x] **UI-01**: User can submit single company via form (name, URL, config)
+- [x] **UI-02**: User can view company list with status badges
 - [ ] **UI-03**: User can view real-time progress during analysis
 - [ ] **UI-04**: User can view completed analysis with markdown rendering
 - [ ] **UI-05**: User can browse extracted entities with filtering
@@ -134,14 +134,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CRL-01 to CRL-07 | Phase 1 | Pending |
+| CRL-01 to CRL-07 | Phase 1 | Complete |
+| API-01, API-03, API-04 | Phase 1 | Complete |
+| UI-01, UI-02 | Phase 1 | Complete |
 | NER-01 to NER-07 | Phase 2 | Pending |
 | ANA-01 to ANA-10 | Phase 3 | Pending |
 | STA-01 to STA-05 | Phase 4 | Pending |
 | EXP-01 to EXP-05 | Phase 5 | Pending |
 | BAT-01 to BAT-04 | Phase 6 | Pending |
-| API-01 to API-10 | Phases 1-6 | Pending |
-| UI-01 to UI-10 | Phases 1-6 | Pending |
+| API-02, API-05 to API-10 | Phases 2-6 | Pending |
+| UI-03 to UI-10 | Phases 2-6 | Pending |
 
 **Coverage:**
 - v1 requirements: 52 total
@@ -150,4 +152,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after initial definition*
+*Last updated: 2026-01-19 after Phase 1 completion*

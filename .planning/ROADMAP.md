@@ -7,31 +7,35 @@
 
 6 phases building toward a complete company intelligence research tool.
 
-| Phase | Name | Goal | Requirements |
-|-------|------|------|--------------|
-| 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 |
-| 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 |
-| 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 |
-| 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 |
-| 5 | Export | Output analysis in multiple formats | EXP-01 to EXP-05 |
-| 6 | Batch Processing | Process multiple companies from CSV | BAT-01 to BAT-04 |
+| Phase | Name | Goal | Requirements | Status |
+|-------|------|------|--------------|--------|
+| 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 | ✓ Complete |
+| 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 | Pending |
+| 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 | Pending |
+| 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 | Pending |
+| 5 | Export | Output analysis in multiple formats | EXP-01 to EXP-05 | Pending |
+| 6 | Batch Processing | Process multiple companies from CSV | BAT-01 to BAT-04 | Pending |
 
 ---
 
-## Phase 1: Web Crawling
+## Phase 1: Web Crawling ✓
 
 **Goal:** Crawl company websites with intelligent prioritization, rate limiting, and robots.txt compliance.
 
 **Requirements:** CRL-01 to CRL-07, API-01, API-03, API-04, UI-01, UI-02
 
-**Plans:** 5 plans
+**Status:** Complete (2026-01-19)
+
+**Plans:** 5/5 complete
 
 Plans:
-- [ ] 01-01-PLAN.md — Crawl pipeline integration tests
-- [ ] 01-02-PLAN.md — API integration tests for company CRUD
-- [ ] 01-03-PLAN.md — Crawler edge case and robustness tests
-- [ ] 01-04-PLAN.md — Frontend component tests (AddCompany, Dashboard)
-- [ ] 01-05-PLAN.md — Verification and requirement mapping
+- [x] 01-01-PLAN.md — Crawl pipeline integration tests
+- [x] 01-02-PLAN.md — API integration tests for company CRUD
+- [x] 01-03-PLAN.md — Crawler edge case and robustness tests
+- [x] 01-04-PLAN.md — Frontend component tests (AddCompany, Dashboard)
+- [x] 01-05-PLAN.md — Verification and requirement mapping
+
+**Verification:** 463 tests passing, all requirements verified
 
 ### Deliverables
 

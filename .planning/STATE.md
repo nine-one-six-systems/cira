@@ -69,11 +69,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Progress tracker tests | 03-04 | Test CompanyProgress page for UI-03 verification |
 | Token tab navigation | 03-04 | Test token counter via tab navigation to Token Usage tab |
 | Mock hook pattern | 03-04 | Mock all useCompanies hooks individually for fine-grained control |
+| Class-based analysis edge tests | 03-03 | Matching test_extraction_edge_cases.py organization pattern |
+| Mock Anthropic directly | 03-03 | Test API error recovery without Flask app context |
 
 ## Session Continuity
 
-Last session: 2026-01-19T22:46:27Z
-Stopped at: Completed 03-04-PLAN.md (UI Analysis Display Tests)
+Last session: 2026-01-19T22:51:22Z
+Stopped at: Completed 03-03-PLAN.md (Analysis Edge Case Tests)
 Resume file: None
 
 ## Blockers

@@ -3,10 +3,10 @@
 ## Current Position
 
 **Milestone:** v1.0 - Core Intelligence Platform
-**Phase:** 1 - Web Crawling (plans 1-2 of 5 complete)
+**Phase:** 1 - Web Crawling (plans 1-3 of 5 complete)
 **Status:** executing
 
-Progress: [####------] 40% (2/5 plans complete)
+Progress: [######----] 60% (3/5 plans complete)
 
 ## Project Reference
 
@@ -29,11 +29,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Requirement traceability | 01-02 | Docstrings link tests to API requirements (API-01, API-03, API-04) |
 | Mock network, real components | 01-01 | Tests integration without flaky network calls |
 | Factory pattern for fixtures | 01-01 | Flexible test data creation |
+| Edge test organization | 01-03 | Single test file with class-based organization by category |
+| Mock redis approach | 01-03 | Pass mock redis via constructor instead of patching property |
 
 ## Session Continuity
 
-Last session: 2026-01-19T22:00:00Z
-Stopped at: Completed 01-01-PLAN.md (crawl integration tests)
+Last session: 2026-01-19T21:22:00Z
+Stopped at: Completed 01-03-PLAN.md (edge case tests)
 Resume file: None
 
 ## Blockers

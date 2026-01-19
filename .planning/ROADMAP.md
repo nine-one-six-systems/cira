@@ -9,16 +9,16 @@
 
 | Phase | Name | Goal | Requirements | Status |
 |-------|------|------|--------------|--------|
-| 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 | ✓ Complete |
+| 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 | Complete |
 | 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 | In Progress |
-| 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 | Pending |
+| 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 | Planned |
 | 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 | Pending |
 | 5 | Export | Output analysis in multiple formats | EXP-01 to EXP-05 | Pending |
 | 6 | Batch Processing | Process multiple companies from CSV | BAT-01 to BAT-04 | Pending |
 
 ---
 
-## Phase 1: Web Crawling ✓
+## Phase 1: Web Crawling
 
 **Goal:** Crawl company websites with intelligent prioritization, rate limiting, and robots.txt compliance.
 
@@ -126,6 +126,17 @@ Plans:
 **Goal:** Generate comprehensive intelligence summaries using Claude API with token tracking and cost estimation.
 
 **Requirements:** ANA-01 to ANA-10, UI-03, UI-04
+
+**Status:** Planned
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Analysis pipeline integration tests
+- [ ] 03-02-PLAN.md — Tokens API integration tests
+- [ ] 03-03-PLAN.md — Analysis edge case and robustness tests
+- [ ] 03-04-PLAN.md — Frontend analysis UI tests
+- [ ] 03-05-PLAN.md — Phase verification and requirement mapping
 
 ### Deliverables
 
@@ -290,7 +301,7 @@ Phase 4 (State Management) [parallel, integrates with Phases 1-3]
 Phase 6 (Batch) [depends on Phase 1 API, enhances workflow]
 ```
 
-**Recommended execution order:** 1 → 2 → 3 → 4 → 5 → 6
+**Recommended execution order:** 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 Phase 4 can be developed in parallel after Phase 1, then integrated.
 
@@ -312,3 +323,4 @@ v1.0 is complete when:
 ---
 
 *Roadmap created: 2026-01-19*
+*Phase 3 planned: 2026-01-19*

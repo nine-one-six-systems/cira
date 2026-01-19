@@ -29,16 +29,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### AI Analysis
 
-- [ ] **ANA-01**: System analyzes content using Claude API
-- [ ] **ANA-02**: System generates executive summary section
-- [ ] **ANA-03**: System generates company overview section
-- [ ] **ANA-04**: System generates business model & products section
-- [ ] **ANA-05**: System generates team & leadership section
-- [ ] **ANA-06**: System generates market position section
-- [ ] **ANA-07**: System generates key insights section
-- [ ] **ANA-08**: System identifies red flags and concerns
-- [ ] **ANA-09**: System tracks token usage per API call
-- [ ] **ANA-10**: System calculates estimated cost from token usage
+- [x] **ANA-01**: System analyzes content using Claude API
+- [x] **ANA-02**: System generates executive summary section
+- [x] **ANA-03**: System generates company overview section
+- [x] **ANA-04**: System generates business model & products section
+- [x] **ANA-05**: System generates team & leadership section
+- [x] **ANA-06**: System generates market position section
+- [x] **ANA-07**: System generates key insights section
+- [x] **ANA-08**: System identifies red flags and concerns
+- [x] **ANA-09**: System tracks token usage per API call
+- [x] **ANA-10**: System calculates estimated cost from token usage
 
 ### State Management
 
@@ -80,8 +80,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **UI-01**: User can submit single company via form (name, URL, config)
 - [x] **UI-02**: User can view company list with status badges
-- [ ] **UI-03**: User can view real-time progress during analysis
-- [ ] **UI-04**: User can view completed analysis with markdown rendering
+- [x] **UI-03**: User can view real-time progress during analysis
+- [x] **UI-04**: User can view completed analysis with markdown rendering
 - [ ] **UI-05**: User can browse extracted entities with filtering
 - [ ] **UI-06**: User can export analysis from dropdown menu
 - [ ] **UI-07**: User can pause/resume in-progress analysis
@@ -138,12 +138,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-01, API-03, API-04 | Phase 1 | Complete |
 | UI-01, UI-02 | Phase 1 | Complete |
 | NER-01 to NER-07 | Phase 2 | Pending |
-| ANA-01 to ANA-10 | Phase 3 | Pending |
+| ANA-01 to ANA-10 | Phase 3 | Complete |
 | STA-01 to STA-05 | Phase 4 | Pending |
 | EXP-01 to EXP-05 | Phase 5 | Pending |
 | BAT-01 to BAT-04 | Phase 6 | Pending |
 | API-02, API-05 to API-10 | Phases 2-6 | Pending |
-| UI-03 to UI-10 | Phases 2-6 | Pending |
+| UI-03, UI-04 | Phase 3 | Complete |
+| UI-05 to UI-10 | Phases 2, 4-6 | Pending |
 
 **Coverage:**
 - v1 requirements: 52 total
@@ -152,4 +153,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 1 completion*
+*Last updated: 2026-01-19 after Phase 3 completion*

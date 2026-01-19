@@ -12,7 +12,7 @@
 | 1 | Web Crawling | Crawl company websites intelligently | CRL-01 to CRL-07 | Complete |
 | 2 | Entity Extraction | Extract people, orgs, products from content | NER-01 to NER-07 | In Progress |
 | 3 | AI Analysis | Generate intelligence summaries with Claude | ANA-01 to ANA-10 | Complete |
-| 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 | Pending |
+| 4 | State Management | Pause/resume and checkpoint reliability | STA-01 to STA-05 | Planned |
 | 5 | Export | Output analysis in multiple formats | EXP-01 to EXP-05 | Pending |
 | 6 | Batch Processing | Process multiple companies from CSV | BAT-01 to BAT-04 | Pending |
 
@@ -182,6 +182,17 @@ Plans:
 
 **Requirements:** STA-01 to STA-05, API-05, API-06, API-07, UI-07
 
+**Status:** Planned
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Checkpoint/resume integration tests
+- [ ] 04-02-PLAN.md — Control API integration tests (pause, resume, progress)
+- [ ] 04-03-PLAN.md — State management edge case tests
+- [ ] 04-04-PLAN.md — Frontend pause/resume UI tests
+- [ ] 04-05-PLAN.md — Phase verification and requirement mapping
+
 ### Deliverables
 
 - Checkpoint data model (pages visited, queued, entities, progress)
@@ -326,3 +337,4 @@ v1.0 is complete when:
 
 *Roadmap created: 2026-01-19*
 *Phase 3 complete: 2026-01-19*
+*Phase 4 planned: 2026-01-19*

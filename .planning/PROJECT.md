@@ -8,61 +8,102 @@ CIRA is an AI-powered company research automation tool that crawls company websi
 
 Users can research any company by entering a URL and receive a comprehensive intelligence brief without manual research work.
 
+## Current State
+
+**v1.0 Core Intelligence Platform — Shipped 2026-01-19**
+
+All core functionality complete and tested:
+- 93,255 lines of code (Python + TypeScript)
+- 6 phases, 30 plans executed
+- 1,672+ tests passing
+- 52/52 requirements satisfied
+
+See `.planning/MILESTONES.md` for full milestone history.
+
 ## Requirements
 
 ### Validated
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet — ship to validate)
+**Web Crawling** (v1.0)
+- [x] Intelligent crawling with sitemap parsing and page prioritization
+- [x] JavaScript rendering via Playwright for dynamic content
+- [x] Rate limiting (1 req/sec, 3 concurrent) and robots.txt compliance
+- [x] Configurable depth and page limits
+- [x] External link following for LinkedIn, Twitter, Facebook profiles
+
+**Entity Extraction** (v1.0)
+- [x] Named Entity Recognition using spaCy (PERSON, ORG, GPE, PRODUCT)
+- [x] Person extraction with role detection (CEO, Founder, CTO, etc.)
+- [x] Structured data extraction (emails, phones, addresses, social handles)
+- [x] Deduplication across multiple pages with confidence scoring
+
+**AI Analysis** (v1.0)
+- [x] Claude API integration for contextual content analysis
+- [x] Section-based analysis (executive summary, business model, team, market position)
+- [x] Token tracking per-company and per-call with cost estimation
+- [x] Prompt templates for consistent analysis quality
+- [x] Red flags and concerns identification
+
+**State Management** (v1.0)
+- [x] Checkpoint persistence every 10 pages or 2 minutes
+- [x] Pause/resume functionality for in-progress jobs
+- [x] Automatic recovery of in_progress jobs on startup
+- [x] Graceful timeout handling with partial results preserved
+
+**Batch Processing** (v1.0)
+- [x] CSV upload for multiple companies with validation
+- [x] Queue management with ordered processing
+- [x] CSV template download
+- [x] Error reporting per row
+
+**Export** (v1.0)
+- [x] Markdown export with 2-page summary template
+- [x] Word (.docx) export with professional formatting
+- [x] PDF export with clickable links
+- [x] JSON export with all structured data
+
+**API** (v1.0)
+- [x] Full CRUD for companies with pagination and filtering
+- [x] Real-time progress polling
+- [x] Pause/resume endpoints
+- [x] Export endpoint with format selection
+- [x] Batch upload endpoint
+- [x] Entity retrieval with filtering
+
+**UI** (v1.0)
+- [x] Single company submission form with URL and config options
+- [x] Company list with status badges and actions
+- [x] Progress tracker with phase, stats, and current activity
+- [x] Analysis viewer with markdown rendering
+- [x] Entity browser with filtering and search
+- [x] Export dropdown with format options
+- [x] Batch CSV upload with preview
+- [x] Delete with confirmation
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-**Web Crawling**
-- [ ] Intelligent crawling with sitemap parsing and page prioritization
-- [ ] JavaScript rendering via Playwright for dynamic content
-- [ ] Rate limiting (1 req/sec, 3 concurrent) and robots.txt compliance
-- [ ] Configurable depth and page limits
-- [ ] External link following for LinkedIn, Twitter, Facebook profiles
+(No active development — see v2 ideas below)
 
-**Entity Extraction**
-- [ ] Named Entity Recognition using spaCy (PERSON, ORG, GPE, DATE, MONEY)
-- [ ] Person extraction with role detection (CEO, Founder, CTO, etc.)
-- [ ] Structured data extraction (emails, phones, addresses, social handles)
-- [ ] Deduplication across multiple pages with confidence scoring
+### Future Ideas (v2+)
 
-**AI Analysis**
-- [ ] Claude API integration for contextual content analysis
-- [ ] Section-based analysis (executive summary, business model, team, market position)
-- [ ] Token tracking per-company and per-call with cost estimation
-- [ ] Prompt templates for consistent analysis quality
+**Versioning & Comparison**
+- [ ] Re-scan completed company
+- [ ] View analysis version history
+- [ ] Side-by-side version comparison
+- [ ] Highlight changes between versions
 
-**State Management**
-- [ ] Checkpoint persistence every 10 pages or 2 minutes
-- [ ] Pause/resume functionality for in-progress jobs
-- [ ] Automatic recovery of in_progress jobs on startup
-- [ ] Graceful timeout handling with partial results preserved
+**Advanced Configuration**
+- [ ] Custom exclusion patterns
+- [ ] Save/reuse configuration presets
+- [ ] Global default configuration
 
-**Batch Processing**
-- [ ] CSV upload for multiple companies
-- [ ] Queue management with pause/resume
-- [ ] Real-time progress monitoring via polling
-
-**Export**
-- [ ] Markdown export with 2-page summary template
-- [ ] Word (.docx) export with professional formatting
-- [ ] PDF export with clickable links
-- [ ] JSON export with all structured data
-
-**UI**
-- [ ] Single company submission form with URL and config options
-- [ ] Company list with status, progress, and actions
-- [ ] Progress tracker with phase, stats, and current activity
-- [ ] Analysis viewer with markdown rendering
-- [ ] Entity browser with filtering and search
-- [ ] Version history with comparison view
+**Notifications**
+- [ ] Toast notifications for job completion
+- [ ] Error notifications with details
 
 ### Out of Scope
 
@@ -91,11 +132,14 @@ The tool combines:
 2. **Hybrid AI** — spaCy for fast entity extraction, Claude for contextual understanding
 3. **Checkpoint/resume** — Long-running jobs can be paused and resumed without data loss
 
-Existing codebase has infrastructure for:
+## Architecture
+
 - React/TypeScript frontend with TanStack Query
 - Flask/Python backend with SQLAlchemy
 - Celery worker architecture with Redis
-- Basic UI components and routing
+- spaCy en_core_web_lg for NLP
+- Claude API via Anthropic SDK
+- Playwright for JavaScript rendering
 
 ## Constraints
 
@@ -112,11 +156,11 @@ Existing codebase has infrastructure for:
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| spaCy + Claude hybrid | spaCy fast for NER, Claude for understanding | — Pending |
-| 2-page summary format | Consistent, scannable output | — Pending |
-| Checkpoint every 10 pages | Balance between I/O and recovery | — Pending |
-| Polling for progress | Simpler than WebSocket, sufficient for UX | — Pending |
-| Desktop-first (1024px min) | Business users on desktop | — Pending |
+| spaCy + Claude hybrid | spaCy fast for NER, Claude for understanding | Validated v1.0 |
+| 2-page summary format | Consistent, scannable output | Validated v1.0 |
+| Checkpoint every 10 pages | Balance between I/O and recovery | Validated v1.0 |
+| Polling for progress | Simpler than WebSocket, sufficient for UX | Validated v1.0 |
+| Desktop-first (1024px min) | Business users on desktop | Validated v1.0 |
 
 ---
-*Last updated: 2026-01-19 after project initialization*
+*Last updated: 2026-01-19 after v1.0 milestone completion*

@@ -535,3 +535,119 @@ class TestExportStatusValidation:
         response = client.get(f"/api/v1/companies/{company_id}/export?format=markdown")
 
         assert response.status_code == 200
+
+
+class TestExportCaseInsensitivity:
+    """Tests for case-insensitive format parameter handling (API-08).
+
+    Verifies the format parameter accepts mixed case values.
+    """
+
+    def test_uppercase_format_accepted(self, client, app):
+        """Test uppercase format parameter is accepted (API-08).
+
+        Verifies format=MARKDOWN returns 200.
+        """
+        company_id = create_completed_company_with_name(app)
+
+        response = client.get(f"/api/v1/companies/{company_id}/export?format=MARKDOWN")
+
+        assert response.status_code == 200
+        assert "text/markdown" in response.content_type
+
+    def test_mixed_case_format_accepted(self, client, app):
+        """Test mixed case format parameter is accepted (API-08).
+
+        Verifies format=Pdf returns 200 with correct content-type.
+        """
+        company_id = create_completed_company_with_name(app)
+
+        response = client.get(f"/api/v1/companies/{company_id}/export?format=Pdf")
+
+        assert response.status_code == 200
+        assert "application/pdf" in response.content_type
+
+    def test_word_format_variations(self, client, app):
+        """Test Word format accepts various case variations (API-08).
+
+        Verifies 'word', 'WORD', and 'Word' all return 200 with docx content-type.
+        """
+        company_id = create_completed_company_with_name(app)
+
+        for format_case in ["word", "WORD", "Word"]:
+            response = client.get(f"/api/v1/companies/{company_id}/export?format={format_case}")
+            assert response.status_code == 200, f"Failed for format={format_case}"
+            assert "openxmlformats" in response.content_type, f"Wrong content-type for format={format_case}"
+
+
+class TestExportErrorResponses:
+    """Tests for error response handling in export endpoint (API-08).
+
+    Verifies proper error codes and messages for invalid requests.
+    """
+
+    def test_missing_format_returns_400(self, client, app):
+        """Test missing format parameter returns 400 (API-08).
+
+        Verifies:
+        - Status code 400
+        - Error code is VALIDATION_ERROR
+        - Error message mentions 'format'
+        """
+        company_id = create_completed_company_with_name(app)
+
+        response = client.get(f"/api/v1/companies/{company_id}/export")
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert data["success"] is False
+        assert data["error"]["code"] == "VALIDATION_ERROR"
+        assert "format" in data["error"]["message"].lower()
+
+    def test_invalid_format_returns_400(self, client, app):
+        """Test invalid format value returns 400 (API-08).
+
+        Verifies:
+        - Status code 400
+        - Error code is VALIDATION_ERROR
+        """
+        company_id = create_completed_company_with_name(app)
+
+        response = client.get(f"/api/v1/companies/{company_id}/export?format=xlsx")
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert data["success"] is False
+        assert data["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_nonexistent_company_returns_404(self, client):
+        """Test export for non-existent company returns 404 (API-08).
+
+        Verifies:
+        - Status code 404
+        - Error code is NOT_FOUND
+        """
+        response = client.get("/api/v1/companies/nonexistent-uuid/export?format=markdown")
+
+        assert response.status_code == 404
+        data = response.get_json()
+        assert data["success"] is False
+        assert data["error"]["code"] == "NOT_FOUND"
+
+    def test_invalid_version_format_returns_400(self, client, app):
+        """Test invalid version parameter format returns 400 (API-08).
+
+        Verifies:
+        - Status code 400
+        - Error code is VALIDATION_ERROR
+        - Error message mentions version
+        """
+        company_id = create_completed_company_with_name(app)
+
+        response = client.get(f"/api/v1/companies/{company_id}/export?format=json&version=abc")
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert data["success"] is False
+        assert data["error"]["code"] == "VALIDATION_ERROR"
+        assert "version" in data["error"]["message"].lower()

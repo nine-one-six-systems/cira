@@ -19,13 +19,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Entity Extraction
 
-- [ ] **NER-01**: System extracts PERSON entities with spaCy NER
-- [ ] **NER-02**: System extracts ORG entities (partners, clients, investors)
-- [ ] **NER-03**: System extracts GPE entities (locations, headquarters)
-- [ ] **NER-04**: System extracts PRODUCT entities (products, services)
-- [ ] **NER-05**: System detects person roles (CEO, Founder, CTO, VP, etc.)
-- [ ] **NER-06**: System extracts structured data (emails, phones, addresses)
-- [ ] **NER-07**: System deduplicates entities across pages with confidence scoring
+- [x] **NER-01**: System extracts PERSON entities with spaCy NER
+- [x] **NER-02**: System extracts ORG entities (partners, clients, investors)
+- [x] **NER-03**: System extracts GPE entities (locations, headquarters)
+- [x] **NER-04**: System extracts PRODUCT entities (products, services)
+- [x] **NER-05**: System detects person roles (CEO, Founder, CTO, VP, etc.)
+- [x] **NER-06**: System extracts structured data (emails, phones, addresses)
+- [x] **NER-07**: System deduplicates entities across pages with confidence scoring
 
 ### AI Analysis
 
@@ -74,7 +74,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **API-07**: POST /companies/:id/resume resumes paused job
 - [x] **API-08**: GET /companies/:id/export returns export in specified format
 - [x] **API-09**: DELETE /companies/:id removes company and all data
-- [ ] **API-10**: GET /companies/:id/entities returns extracted entities
+- [x] **API-10**: GET /companies/:id/entities returns extracted entities
 
 ### UI
 
@@ -82,7 +82,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **UI-02**: User can view company list with status badges
 - [x] **UI-03**: User can view real-time progress during analysis
 - [x] **UI-04**: User can view completed analysis with markdown rendering
-- [ ] **UI-05**: User can browse extracted entities with filtering
+- [x] **UI-05**: User can browse extracted entities with filtering
 - [x] **UI-06**: User can export analysis from dropdown menu
 - [x] **UI-07**: User can pause/resume in-progress analysis
 - [x] **UI-08**: User can configure analysis options (mode, limits, exclusions)
@@ -137,7 +137,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CRL-01 to CRL-07 | Phase 1 | Complete |
 | API-01, API-03, API-04 | Phase 1 | Complete |
 | UI-01, UI-02 | Phase 1 | Complete |
-| NER-01 to NER-07 | Phase 2 | Pending |
+| NER-01 to NER-07 | Phase 2 | Complete |
 | ANA-01 to ANA-10 | Phase 3 | Complete |
 | STA-01 to STA-05 | Phase 4 | Complete |
 | EXP-01 to EXP-05 | Phase 5 | Complete |
@@ -145,12 +145,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-05 to API-07 | Phase 4 | Complete |
 | API-08 | Phase 5 | Complete |
 | API-02, API-09 | Phase 6 | Complete |
-| API-10 | Phase 2 | Pending |
+| API-10 | Phase 2 | Complete |
 | UI-03, UI-04 | Phase 3 | Complete |
 | UI-07 | Phase 4 | Complete |
 | UI-06 | Phase 5 | Complete |
 | UI-08, UI-09, UI-10 | Phase 6 | Complete |
-| UI-05 | Phase 2 | Pending |
+| UI-05 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 52 total

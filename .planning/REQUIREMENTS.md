@@ -42,11 +42,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### State Management
 
-- [ ] **STA-01**: System persists checkpoint every 10 pages or 2 minutes
-- [ ] **STA-02**: User can pause an in-progress analysis
-- [ ] **STA-03**: User can resume a paused analysis from checkpoint
-- [ ] **STA-04**: System automatically resumes in_progress jobs on startup
-- [ ] **STA-05**: System handles timeout gracefully with partial results
+- [x] **STA-01**: System persists checkpoint every 10 pages or 2 minutes
+- [x] **STA-02**: User can pause an in-progress analysis
+- [x] **STA-03**: User can resume a paused analysis from checkpoint
+- [x] **STA-04**: System automatically resumes in_progress jobs on startup
+- [x] **STA-05**: System handles timeout gracefully with partial results
 
 ### Batch Processing
 
@@ -69,9 +69,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **API-02**: POST /companies/batch uploads CSV batch
 - [x] **API-03**: GET /companies lists companies with pagination and filtering
 - [x] **API-04**: GET /companies/:id returns company with latest analysis
-- [ ] **API-05**: GET /companies/:id/progress returns real-time progress
-- [ ] **API-06**: POST /companies/:id/pause pauses in-progress job
-- [ ] **API-07**: POST /companies/:id/resume resumes paused job
+- [x] **API-05**: GET /companies/:id/progress returns real-time progress
+- [x] **API-06**: POST /companies/:id/pause pauses in-progress job
+- [x] **API-07**: POST /companies/:id/resume resumes paused job
 - [ ] **API-08**: GET /companies/:id/export returns export in specified format
 - [ ] **API-09**: DELETE /companies/:id removes company and all data
 - [ ] **API-10**: GET /companies/:id/entities returns extracted entities
@@ -84,7 +84,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **UI-04**: User can view completed analysis with markdown rendering
 - [ ] **UI-05**: User can browse extracted entities with filtering
 - [ ] **UI-06**: User can export analysis from dropdown menu
-- [ ] **UI-07**: User can pause/resume in-progress analysis
+- [x] **UI-07**: User can pause/resume in-progress analysis
 - [ ] **UI-08**: User can configure analysis options (mode, limits, exclusions)
 - [ ] **UI-09**: User can upload batch CSV and preview before submission
 - [ ] **UI-10**: User can delete company and associated data
@@ -139,12 +139,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-01, UI-02 | Phase 1 | Complete |
 | NER-01 to NER-07 | Phase 2 | Pending |
 | ANA-01 to ANA-10 | Phase 3 | Complete |
-| STA-01 to STA-05 | Phase 4 | Pending |
+| STA-01 to STA-05 | Phase 4 | Complete |
 | EXP-01 to EXP-05 | Phase 5 | Pending |
 | BAT-01 to BAT-04 | Phase 6 | Pending |
-| API-02, API-05 to API-10 | Phases 2-6 | Pending |
+| API-05 to API-07 | Phase 4 | Complete |
+| API-02, API-08 to API-10 | Phases 2, 5-6 | Pending |
 | UI-03, UI-04 | Phase 3 | Complete |
-| UI-05 to UI-10 | Phases 2, 4-6 | Pending |
+| UI-07 | Phase 4 | Complete |
+| UI-05, UI-06, UI-08 to UI-10 | Phases 2, 5-6 | Pending |
 
 **Coverage:**
 - v1 requirements: 52 total
@@ -153,4 +155,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 3 completion*
+*Last updated: 2026-01-19 after Phase 4 completion*

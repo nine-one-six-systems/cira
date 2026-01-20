@@ -57,11 +57,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Export
 
-- [ ] **EXP-01**: User can export analysis as Markdown (.md)
-- [ ] **EXP-02**: User can export analysis as Word (.docx)
-- [ ] **EXP-03**: User can export analysis as PDF
-- [ ] **EXP-04**: User can export analysis as JSON with all structured data
-- [ ] **EXP-05**: Export follows 2-page summary template structure
+- [x] **EXP-01**: User can export analysis as Markdown (.md)
+- [x] **EXP-02**: User can export analysis as Word (.docx)
+- [x] **EXP-03**: User can export analysis as PDF
+- [x] **EXP-04**: User can export analysis as JSON with all structured data
+- [x] **EXP-05**: Export follows 2-page summary template structure
 
 ### API
 
@@ -72,7 +72,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **API-05**: GET /companies/:id/progress returns real-time progress
 - [x] **API-06**: POST /companies/:id/pause pauses in-progress job
 - [x] **API-07**: POST /companies/:id/resume resumes paused job
-- [ ] **API-08**: GET /companies/:id/export returns export in specified format
+- [x] **API-08**: GET /companies/:id/export returns export in specified format
 - [ ] **API-09**: DELETE /companies/:id removes company and all data
 - [ ] **API-10**: GET /companies/:id/entities returns extracted entities
 
@@ -83,7 +83,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **UI-03**: User can view real-time progress during analysis
 - [x] **UI-04**: User can view completed analysis with markdown rendering
 - [ ] **UI-05**: User can browse extracted entities with filtering
-- [ ] **UI-06**: User can export analysis from dropdown menu
+- [x] **UI-06**: User can export analysis from dropdown menu
 - [x] **UI-07**: User can pause/resume in-progress analysis
 - [ ] **UI-08**: User can configure analysis options (mode, limits, exclusions)
 - [ ] **UI-09**: User can upload batch CSV and preview before submission
@@ -140,13 +140,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NER-01 to NER-07 | Phase 2 | Pending |
 | ANA-01 to ANA-10 | Phase 3 | Complete |
 | STA-01 to STA-05 | Phase 4 | Complete |
-| EXP-01 to EXP-05 | Phase 5 | Pending |
+| EXP-01 to EXP-05 | Phase 5 | Complete |
 | BAT-01 to BAT-04 | Phase 6 | Pending |
 | API-05 to API-07 | Phase 4 | Complete |
-| API-02, API-08 to API-10 | Phases 2, 5-6 | Pending |
+| API-08 | Phase 5 | Complete |
+| API-02, API-09, API-10 | Phases 2, 6 | Pending |
 | UI-03, UI-04 | Phase 3 | Complete |
 | UI-07 | Phase 4 | Complete |
-| UI-05, UI-06, UI-08 to UI-10 | Phases 2, 5-6 | Pending |
+| UI-06 | Phase 5 | Complete |
+| UI-05, UI-08 to UI-10 | Phases 2, 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 52 total
@@ -155,4 +157,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 4 completion*
+*Last updated: 2026-01-19 after Phase 5 completion*

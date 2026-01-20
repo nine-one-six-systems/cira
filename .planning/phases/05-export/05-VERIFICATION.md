@@ -1,242 +1,169 @@
+---
+phase: 05-export
+verified: 2026-01-20T04:50:00Z
+status: passed
+score: 7/7 must-haves verified
+must_haves:
+  truths:
+    - "User can export analysis as Markdown"
+    - "User can export analysis as Word"
+    - "User can export analysis as PDF"
+    - "User can export analysis as JSON"
+    - "Export follows 2-page template structure"
+    - "Export API endpoint exists and works"
+    - "Export UI dropdown exists and is wired"
+  artifacts:
+    - path: "backend/app/services/export_service.py"
+      provides: "All export format generation"
+    - path: "backend/app/api/routes/export.py"
+      provides: "Export API endpoint"
+    - path: "frontend/src/pages/CompanyResults.tsx"
+      provides: "Export dropdown UI"
+    - path: "frontend/src/api/companies.ts"
+      provides: "exportAnalysis API function"
+  key_links:
+    - from: "CompanyResults.tsx"
+      to: "api/companies.ts"
+      via: "exportAnalysis function import and call"
+    - from: "api/companies.ts"
+      to: "backend/app/api/routes/export.py"
+      via: "GET /api/v1/companies/:id/export"
+    - from: "export.py"
+      to: "export_service.py"
+      via: "generate_export function import"
+---
+
 # Phase 5: Export - Verification Report
 
-**Verified:** 2026-01-20
-**Status:** PASS
+**Phase Goal:** Export completed analyses in multiple formats following the 2-page summary template.
 
-## Summary
+**Verified:** 2026-01-20T04:50:00Z
+
+**Status:** PASSED
+
+**Re-verification:** No - initial verification
+
+## Goal Achievement
+
+### Observable Truths
+
+| # | Truth | Status | Evidence |
+|---|-------|--------|----------|
+| 1 | User can export as Markdown | VERIFIED | 36 service tests + 17 integration tests pass, generate_markdown() implemented |
+| 2 | User can export as Word | VERIFIED | generate_word() implemented with python-docx, tests pass |
+| 3 | User can export as PDF | VERIFIED | generate_pdf() implemented with ReportLab, tests pass |
+| 4 | User can export as JSON | VERIFIED | generate_json() implemented, tests pass |
+| 5 | Export follows 2-page template | VERIFIED | All formats include Executive Summary, Company Overview, Business Model, Team, Market Position, Key Insights, Red Flags sections |
+| 6 | Export API endpoint exists | VERIFIED | GET /api/v1/companies/:id/export route registered in export.py |
+| 7 | Export UI dropdown works | VERIFIED | CompanyResults.tsx has export dropdown, 21 UI tests pass |
+
+**Score:** 7/7 truths verified
+
+### Required Artifacts
+
+| Artifact | Expected | Exists | Substantive | Wired | Status |
+|----------|----------|--------|-------------|-------|--------|
+| `backend/app/services/export_service.py` | Export format generation | YES (816 lines) | YES (no stubs) | YES (imported by export.py) | VERIFIED |
+| `backend/app/api/routes/export.py` | Export API endpoint | YES (140 lines) | YES (no stubs) | YES (registered in __init__.py) | VERIFIED |
+| `frontend/src/pages/CompanyResults.tsx` | Export dropdown UI | YES (916 lines) | YES (lines 94-99, 122-124, 156-183) | YES (calls exportAnalysis) | VERIFIED |
+| `frontend/src/api/companies.ts` | exportAnalysis function | YES | YES (lines 196-204) | YES (imported by CompanyResults) | VERIFIED |
+
+### Key Link Verification
+
+| From | To | Via | Status | Details |
+|------|----|----|--------|---------|
+| CompanyResults.tsx | api/companies.ts | import { exportAnalysis } | WIRED | Line 23 imports, lines 160-172 calls with blob download |
+| api/companies.ts | export.py | GET /companies/:id/export | WIRED | Lines 196-204 make API call with format param |
+| export.py | export_service.py | generate_export() | WIRED | Lines 118-124 call generate_export with params |
+| export route | api_bp | Blueprint registration | WIRED | __init__.py line 17 imports export module |
+
+### Requirements Coverage
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| EXP-01: Markdown export | SATISFIED | generate_markdown() returns UTF-8 markdown |
+| EXP-02: Word export | SATISFIED | generate_word() returns valid .docx bytes |
+| EXP-03: PDF export | SATISFIED | generate_pdf() returns valid PDF bytes |
+| EXP-04: JSON export | SATISFIED | generate_json() returns structured JSON |
+| EXP-05: 2-page template | SATISFIED | All formats have consistent section structure |
+| API-08: Export endpoint | SATISFIED | GET /companies/:id/export with format param |
+| UI-06: Export dropdown | SATISFIED | Select component with 4 format options |
+
+### Anti-Patterns Found
+
+| File | Line | Pattern | Severity | Impact |
+|------|------|---------|----------|--------|
+| None | - | - | - | No stub patterns or anti-patterns found |
+
+### Test Results
 
 | Category | Tests | Passed | Failed |
 |----------|-------|--------|--------|
-| Export Integration (05-01) | 17 | 17 | 0 |
-| Export API Integration (05-02) | 30 | 30 | 0 |
-| Export Edge Cases (05-03) | 29 | 29 | 0 |
-| Export UI (05-04) | 21 | 21 | 0 |
-| Unit Tests (ExportService) | 36 | 36 | 0 |
-| Unit Tests (ExportAPI) | 28 | 28 | 0 |
+| Export Service Unit Tests | 36 | 36 | 0 |
+| Export API Unit Tests | 28 | 28 | 0 |
+| Export Integration Tests | 17 | 17 | 0 |
+| Export API Integration Tests | 30 | 30 | 0 |
+| Export Edge Case Tests | 29 | 29 | 0 |
+| Export UI Tests | 21 | 21 | 0 |
 | **Total** | **161** | **161** | **0** |
 
-## Requirement Verification Matrix
+### Human Verification Required
 
-### Export Format Requirements
+The following items may benefit from human verification but are not blocking:
 
-| Req ID | Requirement | Test File | Test Name | Status |
-|--------|-------------|-----------|-----------|--------|
-| EXP-01 | Markdown export (.md) | test_export_integration.py, test_export_service.py | test_markdown_includes_all_analysis_sections, TestMarkdownExport | PASS |
-| EXP-02 | Word export (.docx) | test_export_integration.py, test_export_service.py | test_word_includes_all_analysis_sections, TestWordExport | PASS |
-| EXP-03 | PDF export | test_export_integration.py, test_export_service.py | test_pdf_includes_all_analysis_sections, TestPdfExport | PASS |
-| EXP-04 | JSON export with structured data | test_export_integration.py, test_export_service.py | test_json_includes_all_structured_data, TestJsonExport | PASS |
-| EXP-05 | 2-page summary template structure | test_export_integration.py, test_export_edge_cases.py | test_markdown_includes_all_analysis_sections, TestExportMissingAnalysis | PASS |
+### 1. Visual Export Quality
+**Test:** Open exported Word and PDF documents in native applications
+**Expected:** Documents should be properly formatted, readable, with correct fonts and spacing
+**Why human:** Programmatic tests verify structure but not visual rendering quality
 
-### API Requirements
+### 2. File Download UX
+**Test:** Click export dropdown, select format, observe download behavior
+**Expected:** File downloads immediately with correct filename and extension
+**Why human:** Tests mock blob download; real browser behavior needs human verification
 
-| Req ID | Requirement | Test File | Test Name | Status |
-|--------|-------------|-----------|-----------|--------|
-| API-08 | GET /export endpoint | test_export_api_integration.py, test_export_api.py | TestExportFormatResponses, TestExportEndpointValidation | PASS |
+## Gaps Summary
 
-### UI Requirements
-
-| Req ID | Requirement | Test File | Test Name | Status |
-|--------|-------------|-----------|-----------|--------|
-| UI-06 | Export dropdown menu | ExportUI.test.tsx | TestExportDropdownDisplay, TestExportSelection, TestExportSuccessFeedback | PASS |
-
-## Test Evidence
-
-### Export Integration Tests (05-01)
-
-```
-test_export_integration.py::TestExportDataFlow::test_markdown_includes_all_analysis_sections PASSED
-test_export_integration.py::TestExportDataFlow::test_word_includes_all_analysis_sections PASSED
-test_export_integration.py::TestExportDataFlow::test_pdf_includes_all_analysis_sections PASSED
-test_export_integration.py::TestExportDataFlow::test_json_includes_all_structured_data PASSED
-test_export_integration.py::TestExportExecutiveTable::test_markdown_executive_table_format PASSED
-test_export_integration.py::TestExportExecutiveTable::test_word_executive_table PASSED
-test_export_integration.py::TestExportTokenStatistics::test_markdown_includes_token_usage PASSED
-test_export_integration.py::TestExportTokenStatistics::test_json_includes_token_breakdown PASSED
-test_export_integration.py::TestExportSourceUrls::test_markdown_lists_source_pages PASSED
-test_export_integration.py::TestExportSourceUrls::test_json_includes_pages PASSED
-test_export_integration.py::TestExportWithSparseData::test_markdown_handles_missing_sections PASSED
-test_export_integration.py::TestExportWithSparseData::test_all_formats_succeed_with_minimal_data PASSED
-test_export_integration.py::TestExportWithSparseData::test_json_handles_no_entities PASSED
-test_export_integration.py::TestExportWithSparseData::test_json_handles_no_pages PASSED
-test_export_integration.py::TestExportContentIntegrity::test_markdown_contains_actual_content PASSED
-test_export_integration.py::TestExportContentIntegrity::test_json_sections_have_correct_structure PASSED
-test_export_integration.py::TestExportContentIntegrity::test_executive_summary_appears_in_all_formats PASSED
-
-Result: 17 passed in 2.20s
-```
-
-### Export API Integration Tests (05-02)
-
-```
-test_export_api_integration.py::TestExportFormatResponses::test_markdown_response_content_type PASSED
-test_export_api_integration.py::TestExportFormatResponses::test_word_response_content_type PASSED
-test_export_api_integration.py::TestExportFormatResponses::test_pdf_response_content_type PASSED
-test_export_api_integration.py::TestExportFormatResponses::test_json_response_content_type PASSED
-test_export_api_integration.py::TestExportContentDisposition::test_filename_includes_company_name PASSED
-test_export_api_integration.py::TestExportContentDisposition::test_filename_extension_matches_format PASSED
-test_export_api_integration.py::TestExportContentDisposition::test_filename_sanitized_for_special_chars PASSED
-test_export_api_integration.py::TestExportSecurityHeaders::test_nosniff_header_present PASSED
-test_export_api_integration.py::TestExportSecurityHeaders::test_cache_control_header_present PASSED
-test_export_api_integration.py::TestExportSecurityHeaders::test_all_formats_have_security_headers PASSED
-test_export_api_integration.py::TestExportVersionParameter::test_export_latest_version_by_default PASSED
-test_export_api_integration.py::TestExportVersionParameter::test_export_specific_version_1 PASSED
-test_export_api_integration.py::TestExportVersionParameter::test_export_specific_version_2 PASSED
-test_export_api_integration.py::TestExportVersionParameter::test_export_nonexistent_version_returns_404 PASSED
-test_export_api_integration.py::TestExportIncludeRawDataParameter::test_json_includes_entities_by_default PASSED
-test_export_api_integration.py::TestExportIncludeRawDataParameter::test_json_includes_pages_by_default PASSED
-test_export_api_integration.py::TestExportIncludeRawDataParameter::test_json_excludes_entities_when_false PASSED
-test_export_api_integration.py::TestExportIncludeRawDataParameter::test_json_excludes_pages_when_false PASSED
-test_export_api_integration.py::TestExportStatusValidation::test_export_pending_company_returns_422 PASSED
-test_export_api_integration.py::TestExportStatusValidation::test_export_in_progress_company_returns_422 PASSED
-test_export_api_integration.py::TestExportStatusValidation::test_export_paused_company_returns_422 PASSED
-test_export_api_integration.py::TestExportStatusValidation::test_export_failed_company_returns_422 PASSED
-test_export_api_integration.py::TestExportStatusValidation::test_export_completed_company_succeeds PASSED
-test_export_api_integration.py::TestExportCaseInsensitivity::test_uppercase_format_accepted PASSED
-test_export_api_integration.py::TestExportCaseInsensitivity::test_mixed_case_format_accepted PASSED
-test_export_api_integration.py::TestExportCaseInsensitivity::test_word_format_variations PASSED
-test_export_api_integration.py::TestExportErrorResponses::test_missing_format_returns_400 PASSED
-test_export_api_integration.py::TestExportErrorResponses::test_invalid_format_returns_400 PASSED
-test_export_api_integration.py::TestExportErrorResponses::test_nonexistent_company_returns_404 PASSED
-test_export_api_integration.py::TestExportErrorResponses::test_invalid_version_format_returns_400 PASSED
-
-Result: 30 passed in 2.69s
-```
-
-### Export Edge Case Tests (05-03)
-
-```
-test_export_edge_cases.py::TestExportMissingAnalysis::test_markdown_with_no_analysis PASSED
-test_export_edge_cases.py::TestExportMissingAnalysis::test_word_with_no_analysis PASSED
-test_export_edge_cases.py::TestExportMissingAnalysis::test_pdf_with_no_analysis PASSED
-test_export_edge_cases.py::TestExportMissingAnalysis::test_json_with_no_analysis PASSED
-test_export_edge_cases.py::TestExportEmptySections::test_markdown_with_empty_full_analysis PASSED
-test_export_edge_cases.py::TestExportEmptySections::test_markdown_with_partial_sections PASSED
-test_export_edge_cases.py::TestExportEmptySections::test_json_with_empty_sections PASSED
-test_export_edge_cases.py::TestExportEmptySections::test_word_with_null_content_fields PASSED
-test_export_edge_cases.py::TestExportSpecialCharacters::test_filename_sanitizes_slashes PASSED
-test_export_edge_cases.py::TestExportSpecialCharacters::test_filename_sanitizes_backslashes PASSED
-test_export_edge_cases.py::TestExportSpecialCharacters::test_filename_sanitizes_ampersand PASSED
-test_export_edge_cases.py::TestExportSpecialCharacters::test_filename_handles_long_names PASSED
-test_export_edge_cases.py::TestExportSpecialCharacters::test_markdown_handles_special_chars_in_content PASSED
-test_export_edge_cases.py::TestExportUnicodeContent::test_markdown_handles_unicode_company_name PASSED
-test_export_edge_cases.py::TestExportUnicodeContent::test_markdown_handles_unicode_analysis_content PASSED
-test_export_edge_cases.py::TestExportUnicodeContent::test_word_handles_unicode PASSED
-test_export_edge_cases.py::TestExportUnicodeContent::test_json_handles_unicode PASSED
-test_export_edge_cases.py::TestExportLargeContent::test_markdown_handles_large_analysis PASSED
-test_export_edge_cases.py::TestExportLargeContent::test_pdf_handles_large_analysis PASSED
-test_export_edge_cases.py::TestExportLargeContent::test_json_handles_many_entities PASSED
-test_export_edge_cases.py::TestExportLargeContent::test_json_handles_many_pages PASSED
-test_export_edge_cases.py::TestExportMissingRelatedData::test_export_with_no_entities PASSED
-test_export_edge_cases.py::TestExportMissingRelatedData::test_export_with_no_pages PASSED
-test_export_edge_cases.py::TestExportMissingRelatedData::test_export_with_no_token_usage PASSED
-test_export_edge_cases.py::TestExportMissingRelatedData::test_json_without_raw_data_excludes_empty_arrays PASSED
-test_export_edge_cases.py::TestExportContentValidation::test_markdown_output_is_valid_utf8 PASSED
-test_export_edge_cases.py::TestExportContentValidation::test_word_output_is_valid_docx PASSED
-test_export_edge_cases.py::TestExportContentValidation::test_pdf_output_is_valid_pdf PASSED
-test_export_edge_cases.py::TestExportContentValidation::test_json_output_is_valid_json PASSED
-
-Result: 29 passed in 3.39s
-```
-
-### Export UI Tests (05-04)
-
-```
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Display (UI-06) > shows export button when company is completed PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Display (UI-06) > shows export button for all statuses PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Display (UI-06) > shows dropdown menu when export button clicked PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Display (UI-06) > dropdown contains all format options PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Format Selection (UI-06) > selecting markdown triggers export API call PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Format Selection (UI-06) > selecting pdf triggers export API call PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Format Selection (UI-06) > selecting word triggers export API call PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Format Selection (UI-06) > selecting json triggers export API call PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Loading State (UI-06) > shows loading indicator during export PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Loading State (UI-06) > dropdown disabled during export PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Success Feedback (UI-06) > shows success toast after successful export PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Success Feedback (UI-06) > creates blob download link for export PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Success Feedback (UI-06) > cleans up object URL after download PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Error Handling (UI-06) > shows error toast when export fails PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Error Handling (UI-06) > shows 422 error for non-completed company PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Error Handling (UI-06) > hides loading state after error PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Behavior (UI-06) > closes dropdown after format selection PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export Dropdown Behavior (UI-06) > closes dropdown when clicking outside PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export URL Formation (UI-06) > uses correct API URL for export PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export URL Formation (UI-06) > uses correct API URL for company UUID PASSED
-ExportUI.test.tsx > Export UI Tests (UI-06) > Export URL Formation (UI-06) > handles base URL with trailing slash PASSED
-
-Result: 21 passed in 1.36s
-```
-
-### Unit Tests
-
-```
-test_export_service.py: 36 tests passed
-test_export_api.py: 28 tests passed
-
-Result: 64 passed in 5.61s
-```
+**No gaps identified.** All must-haves verified. Phase goal achieved.
 
 ## Implementation Coverage
 
 ### ExportService (export_service.py)
-- Markdown generation with GFM tables: IMPLEMENTED
-- Word generation with python-docx: IMPLEMENTED
-- PDF generation with ReportLab: IMPLEMENTED
-- JSON generation with structured data: IMPLEMENTED
-- Token statistics calculation: IMPLEMENTED
-- Key executives extraction: IMPLEMENTED
-- Source URL listing: IMPLEMENTED
-- 2-page template structure: IMPLEMENTED
+- [x] Markdown generation with GFM tables
+- [x] Word generation with python-docx
+- [x] PDF generation with ReportLab
+- [x] JSON generation with structured data
+- [x] Token statistics calculation
+- [x] Key executives extraction
+- [x] Source URL listing
+- [x] 2-page template structure for all formats
 
 ### Export API (export.py)
-- GET /export endpoint: IMPLEMENTED
-- Format parameter validation: IMPLEMENTED
-- Version parameter handling: IMPLEMENTED
-- includeRawData parameter (JSON): IMPLEMENTED
-- Content-Type headers per format: IMPLEMENTED
-- Content-Disposition with filename: IMPLEMENTED
-- Security headers: IMPLEMENTED
-- Status validation (COMPLETED only): IMPLEMENTED
+- [x] GET /export endpoint
+- [x] Format parameter validation (markdown, word, pdf, json)
+- [x] Version parameter handling
+- [x] includeRawData parameter (JSON only)
+- [x] Content-Type headers per format
+- [x] Content-Disposition with filename
+- [x] Security headers (X-Content-Type-Options, Cache-Control)
+- [x] Status validation (COMPLETED only)
 
 ### Export UI (CompanyResults.tsx)
-- Export dropdown with format options: IMPLEMENTED
-- Format selection triggers download: IMPLEMENTED
-- Loading state during export: IMPLEMENTED
-- Success toast notification: IMPLEMENTED
-- Error toast notification: IMPLEMENTED
-- Blob download trigger: IMPLEMENTED
-
-## Gaps Identified
-
-None - all requirements have passing tests.
-
-## Pre-existing Test Coverage
-
-Phase 5 had extensive pre-existing test coverage:
-- test_export_service.py: 36 tests covering ExportService class
-- test_export_api.py: 28 tests covering API endpoint
-
-Plans 01-04 added integration tests to verify:
-- Component wiring (service to API to UI)
-- Edge cases (missing data, special characters, unicode)
-- API behavior (headers, status codes, parameters)
-- UI behavior (dropdown, feedback, error handling)
+- [x] Export dropdown with format options
+- [x] Format selection triggers download
+- [x] Loading state during export
+- [x] Success toast notification
+- [x] Error toast notification
+- [x] Blob download trigger
 
 ## Notes
 
-### Unrelated Test Failures
+### Dependency Note
+During verification, missing test dependencies (python-docx, PyPDF2, reportlab) were installed. These are required for running export tests but the export functionality itself works correctly as the service imports are present in requirements.
 
-The following test files have pre-existing failures unrelated to Phase 5:
-- test_extraction_edge_cases.py - Pydantic v1 incompatibility with Python 3.14
-- test_extraction_integration.py - Pydantic v1 incompatibility with Python 3.14
-- test_nlp_pipeline.py - Pydantic v1 incompatibility with Python 3.14
-- test_structured_extractor.py - spaCy model loading issues
+### PyPDF2 Deprecation
+PyPDF2 shows deprecation warning - consider migrating to pypdf in future maintenance.
 
-These are spaCy/NLP-related tests from Phase 2 that have compatibility issues with Python 3.14. They do not affect Phase 5 export functionality.
+---
 
-## Recommendations
-
-1. **Phase 6 Preparation:** Export functionality is complete and verified. Ready to proceed with final integration or additional phases.
-
-2. **Python Compatibility:** Consider addressing spaCy/Pydantic compatibility issues in a future maintenance phase, or document Python 3.13 as the recommended version.
-
-3. **PyPDF2 Deprecation Warning:** Consider migrating from PyPDF2 to pypdf library in a future update to eliminate deprecation warnings.
+*Verified: 2026-01-20T04:50:00Z*
+*Verifier: Claude (gsd-verifier)*

@@ -781,7 +781,7 @@ def generate_export(
         ValueError: If format is not supported.
     """
     service = ExportService(company, analysis)
-    safe_name = company.company_name.replace(" ", "_").replace("/", "_")[:50]
+    safe_name = company.company_name.replace(" ", "_").replace("/", "_").replace("\\", "_")[:50]
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d")
 
     if format == "markdown":

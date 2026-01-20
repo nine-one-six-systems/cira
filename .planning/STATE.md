@@ -3,17 +3,17 @@
 ## Current Position
 
 **Milestone:** v1.0 - Core Intelligence Platform
-**Phase:** 5 - Export (COMPLETE)
-**Status:** Complete
+**Phase:** 6 - Batch Processing
+**Status:** In Progress
 
-Progress: [##########] 100% (5/5 Phase 5 plans complete)
+Progress: [#---------] 25% (1/4 Phase 6 plans complete)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Users can research any company by entering a URL and receive a comprehensive intelligence brief without manual research work.
-**Current focus:** Phase 5 Export complete - all 7 requirements verified with 161 passing tests
+**Current focus:** Phase 6 Batch Processing - integration tests for batch pipeline flow
 
 ## Phase 1 Summary
 
@@ -63,6 +63,18 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | 05-04 | Export UI Tests | Complete |
 | 05-05 | Phase Verification | Complete |
 
+## Phase 6 Summary
+
+**Status:** In Progress
+**Requirements covered:** BAT-01 through BAT-04, API-02 (5 total)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 06-01 | Batch Integration Tests | Complete |
+| 06-02 | Batch Queue Service Tests | Pending |
+| 06-03 | Batch Edge Case Tests | Pending |
+| 06-04 | Batch UI Tests | Pending |
+
 ## Overall Test Coverage
 
 | Phase | Tests | Status |
@@ -72,7 +84,8 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Phase 3: AI Analysis | 198 | PASS |
 | Phase 4: State Management | 233 | PASS |
 | Phase 5: Export | 161 | PASS |
-| **Total** | **1055+** | **All passing** |
+| Phase 6: Batch Processing | 17 | PASS |
+| **Total** | **1072+** | **All passing** |
 
 ## Workflow Preferences
 
@@ -126,11 +139,14 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Use markdown extension not .md | 05-04 | Implementation uses format name directly as extension (except word->docx) |
 | Edge case class organization | 05-03 | 7 test classes covering distinct edge case categories for export robustness |
 | Fix backslash in filename | 05-03 | Added backslash sanitization to generate_export() for cross-platform safety |
+| Batch fixture factory | 06-01 | Factory functions for batch test setup with configurable status |
+| Mock job_service | 06-01 | Mock job_service.start_job to avoid Celery dispatch in tests |
+| Per-class test organization | 06-01 | Organize tests by flow: upload, queue, template, progress, control |
 
 ## Session Continuity
 
-Last session: 2026-01-20T01:41:23Z
-Stopped at: Completed 05-05-PLAN.md (Phase Verification)
+Last session: 2026-01-20T02:36:50Z
+Stopped at: Completed 06-01-PLAN.md (Batch Integration Tests)
 Resume file: None
 
 ## Blockers
@@ -139,8 +155,8 @@ None currently.
 
 ## Next Steps
 
-1. Phase 5 Export complete - all requirements verified
-2. Begin Phase 6 or final milestone wrap-up
+1. Continue Phase 6 with 06-02 (Batch Queue Service Tests)
+2. Complete remaining Phase 6 plans (06-03, 06-04)
 3. Consider addressing spaCy/Pydantic compatibility in maintenance phase
 
 ---

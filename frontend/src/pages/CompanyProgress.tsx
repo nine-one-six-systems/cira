@@ -16,6 +16,7 @@ import {
   useCompany,
   useProgress,
   usePauseCompany,
+  useStartCompany,
   useResumeCompany,
   useDeleteCompany,
 } from '../hooks/useCompanies';
@@ -99,6 +100,7 @@ export default function CompanyProgress() {
 
   // Mutations
   const pauseMutation = usePauseCompany();
+  const startMutation = useStartCompany();
   const resumeMutation = useResumeCompany();
   const deleteMutation = useDeleteCompany();
 
@@ -129,6 +131,23 @@ export default function CompanyProgress() {
       showToast({
         type: 'error',
         message: 'Failed to pause analysis',
+      });
+    }
+  };
+
+  // Handle start
+  const handleStart = async () => {
+    if (!id) return;
+    try {
+      await startMutation.mutateAsync(id);
+      showToast({
+        type: 'success',
+        message: 'Analysis started!',
+      });
+    } catch {
+      showToast({
+        type: 'error',
+        message: 'Failed to start analysis',
       });
     }
   };
@@ -232,6 +251,7 @@ export default function CompanyProgress() {
   const progress = progressData?.data;
   const status = company.status as CompanyStatus;
   const phase = progress?.phase || 'queued';
+  const isPending = status === 'pending';
   const isPaused = status === 'paused';
   const isFailed = status === 'failed';
   const isCompleted = status === 'completed';
@@ -307,6 +327,8 @@ export default function CompanyProgress() {
                 ? 'Analysis failed. Please try again.'
                 : isPaused
                 ? 'Analysis paused. Click Resume to continue.'
+                : isPending
+                ? 'Analysis is ready to start. Click "Start Analysis" to begin.'
                 : PHASE_DESCRIPTIONS[phase as ProcessingPhase]}
             </p>
           </div>
@@ -374,7 +396,23 @@ export default function CompanyProgress() {
           {/* Actions */}
           {!isCompleted && (
             <div className="flex justify-center gap-4 pt-4 border-t border-neutral-200">
-              {isPaused ? (
+              {isPending ? (
+                <>
+                  <Button
+                    onClick={handleStart}
+                    loading={startMutation.isPending}
+                  >
+                    Start Analysis
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => setCancelModalOpen(true)}
+                    disabled={startMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : isPaused ? (
                 <>
                   <Button
                     onClick={handleResume}
@@ -392,12 +430,16 @@ export default function CompanyProgress() {
                 </>
               ) : isFailed ? (
                 <>
-                  <Link to={`/add`}>
-                    <Button>Try Again</Button>
-                  </Link>
+                  <Button
+                    onClick={handleStart}
+                    loading={startMutation.isPending}
+                  >
+                    Try Again
+                  </Button>
                   <Button
                     variant="danger"
                     onClick={() => setCancelModalOpen(true)}
+                    disabled={startMutation.isPending}
                   >
                     Delete
                   </Button>

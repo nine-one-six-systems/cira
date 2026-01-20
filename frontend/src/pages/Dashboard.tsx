@@ -214,10 +214,17 @@ export default function Dashboard() {
 
   // Handlers
   const handleRowClick = (company: Company) => {
-    if (company.status === 'in_progress') {
+    // Navigate to progress page for active/pending jobs
+    if (company.status === 'in_progress' || company.status === 'pending' || company.status === 'paused') {
       navigate(`/companies/${company.id}/progress`);
-    } else if (company.status === 'completed') {
+    } 
+    // Navigate to results page for completed jobs
+    else if (company.status === 'completed') {
       navigate(`/companies/${company.id}`);
+    }
+    // For failed jobs, navigate to progress page to see what went wrong
+    else if (company.status === 'failed') {
+      navigate(`/companies/${company.id}/progress`);
     }
   };
 

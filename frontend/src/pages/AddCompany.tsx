@@ -140,12 +140,43 @@ export default function AddCompany() {
 
       // Redirect to progress page
       navigate(`/companies/${response.data.companyId}/progress`);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create company';
-      showToast({
-        type: 'error',
-        message,
-      });
+    } catch (err: any) {
+      let message = 'Failed to create company';
+      
+      // Handle 409 Conflict - company already exists
+      if (err?.response?.status === 409) {
+        const errorData = err?.response?.data?.error;
+        const existingCompanyId = errorData?.details?.existingCompanyId;
+        
+        if (existingCompanyId) {
+          message = `A company with this URL already exists. Redirecting to existing company...`;
+          showToast({
+            type: 'error',
+            message,
+          });
+          // Navigate to existing company after a short delay
+          setTimeout(() => {
+            navigate(`/companies/${existingCompanyId}/progress`);
+          }, 1500);
+        } else {
+          message = errorData?.message || 'A company with this URL already exists';
+          showToast({
+            type: 'error',
+            message,
+          });
+        }
+      } else {
+        // Handle other errors - extract message from API error response
+        if (err?.response?.data?.error?.message) {
+          message = err.response.data.error.message;
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+        showToast({
+          type: 'error',
+          message,
+        });
+      }
     }
   };
 

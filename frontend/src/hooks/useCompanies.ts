@@ -9,6 +9,7 @@ import {
   createCompany,
   deleteCompany,
   pauseCompany,
+  startCompany,
   resumeCompany,
   rescanCompany,
   getProgress,
@@ -131,6 +132,20 @@ export function usePauseCompany() {
 
   return useMutation({
     mutationFn: (id: string) => pauseCompany(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: companyKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: companyKeys.progress(id) });
+      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+    },
+  });
+}
+
+// Start company mutation
+export function useStartCompany() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => startCompany(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: companyKeys.progress(id) });

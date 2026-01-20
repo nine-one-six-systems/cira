@@ -10,18 +10,51 @@ class Config:
     # Flask
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///cira.db')
+    # Database - use absolute path to avoid working directory issues
+    @staticmethod
+    def _get_db_path(db_name: str = 'cira.db') -> str:
+        """Get absolute database path."""
+        db_url = os.environ.get('DATABASE_URL')
+        if db_url:
+            return db_url
+        # Default to instance folder for Flask apps
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        instance_path = os.path.join(backend_dir, 'instance')
+        os.makedirs(instance_path, exist_ok=True)
+        return f'sqlite:///{os.path.join(instance_path, db_name)}'
+    
+    SQLALCHEMY_DATABASE_URI = _get_db_path('cira.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # SQLAlchemy Connection Pooling (NFR-PER-004: Queries < 100ms)
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': int(os.environ.get('DB_POOL_SIZE', '10')),
-        'pool_recycle': int(os.environ.get('DB_POOL_RECYCLE', '3600')),  # 1 hour
-        'pool_pre_ping': True,  # Verify connections before use
-        'pool_timeout': int(os.environ.get('DB_POOL_TIMEOUT', '30')),
-        'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', '20')),
-    }
+    # SQLAlchemy Connection Options
+    # For SQLite: Use NullPool and configure for concurrent access
+    # For PostgreSQL/Supabase: Use connection pooling
+    @staticmethod
+    def _get_engine_options() -> dict:
+        """Get SQLAlchemy engine options based on database type."""
+        db_url = os.environ.get('DATABASE_URL', '')
+        
+        if db_url.startswith('postgresql'):
+            # PostgreSQL connection pooling
+            return {
+                'pool_size': int(os.environ.get('DB_POOL_SIZE', '10')),
+                'pool_recycle': int(os.environ.get('DB_POOL_RECYCLE', '3600')),
+                'pool_pre_ping': True,
+                'pool_timeout': int(os.environ.get('DB_POOL_TIMEOUT', '30')),
+                'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', '20')),
+            }
+        else:
+            # SQLite: Use StaticPool and WAL mode for concurrent access
+            from sqlalchemy.pool import StaticPool
+            return {
+                'connect_args': {
+                    'timeout': 30,  # Wait up to 30s for locks
+                    'check_same_thread': False,  # Allow multi-threaded access
+                },
+                'poolclass': StaticPool,  # Single connection pool for SQLite
+            }
+    
+    SQLALCHEMY_ENGINE_OPTIONS = _get_engine_options()
 
     # Redis
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
@@ -59,7 +92,9 @@ class DevelopmentConfig(Config):
     """Development configuration."""
 
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///cira_dev.db')
+    # Use same database as base config for consistency
+    # In development, we'll use cira.db to match production behavior
+    SQLALCHEMY_DATABASE_URI = Config._get_db_path('cira.db')
 
 
 class TestingConfig(Config):

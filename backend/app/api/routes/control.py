@@ -66,6 +66,66 @@ def pause_company(company_id: str):
     return make_success_response(response.model_dump(by_alias=True))
 
 
+@api_bp.route('/companies/<company_id>/start', methods=['POST'])
+def start_company(company_id: str):
+    """Start a pending analysis or re-dispatch if stuck."""
+    company = db.session.get(Company, company_id)
+    if not company:
+        return make_error_response('NOT_FOUND', 'Company not found', status=404)
+
+    from app.services.job_service import job_service
+    config_dict = company.config if company.config else None
+
+    # If already in_progress but stuck in QUEUED phase, re-dispatch
+    if company.status == CompanyStatus.IN_PROGRESS and company.processing_phase == ProcessingPhase.QUEUED:
+        # Re-dispatch the task
+        job_service._dispatch_next_phase(str(company.id), config_dict)
+        db.session.refresh(company)
+        
+        response = ResumeResponse(
+            status='in_progress',
+            resumedFrom=ResumeFromData(
+                pagesCrawled=0,
+                entitiesExtracted=0,
+                phase=company.processing_phase
+            )
+        )
+        return make_success_response(response.model_dump(by_alias=True, mode='json'))
+
+    # Validate state - can start if pending or failed
+    if company.status not in (CompanyStatus.PENDING, CompanyStatus.FAILED):
+        return make_error_response(
+            'INVALID_STATE',
+            f'Cannot start company with status: {company.status.value}',
+            {'currentStatus': company.status.value},
+            status=422
+        )
+
+    # Start the job
+    start_result = job_service.start_job(str(company.id), config_dict)
+    
+    if not start_result.get('success'):
+        return make_error_response(
+            'START_FAILED',
+            start_result.get('error', 'Failed to start job'),
+            status=500
+        )
+
+    # Refresh company to get updated status
+    db.session.refresh(company)
+
+    response = ResumeResponse(
+        status='in_progress',
+        resumedFrom=ResumeFromData(
+            pagesCrawled=0,
+            entitiesExtracted=0,
+            phase=company.processing_phase
+        )
+    )
+
+    return make_success_response(response.model_dump(by_alias=True, mode='json'))
+
+
 @api_bp.route('/companies/<company_id>/resume', methods=['POST'])
 def resume_company(company_id: str):
     """Resume a paused analysis."""

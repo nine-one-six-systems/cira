@@ -8,7 +8,7 @@ Task 5.2: Named Entity Extraction Worker
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING
 
 from app.extractors.nlp_pipeline import NLPPipeline, ExtractedEntity, ExtractionConfig, nlp_pipeline
 
@@ -174,7 +174,7 @@ class EntityExtractor:
     def extract_for_company(
         self,
         company_id: str,
-        progress_callback: callable | None = None
+        progress_callback: Callable | None = None
     ) -> BatchExtractionResult:
         """
         Extract entities from all pages of a company.
@@ -252,7 +252,7 @@ class EntityExtractor:
     def save_entities_for_company(
         self,
         company_id: str,
-        progress_callback: callable | None = None
+        progress_callback: Callable | None = None
     ) -> dict[str, Any]:
         """
         Extract and save entities for a company to the database.

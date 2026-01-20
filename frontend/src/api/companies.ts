@@ -96,6 +96,25 @@ export async function pauseCompany(id: string): Promise<ApiResponse<{
 }
 
 // Resume company
+export async function startCompany(id: string): Promise<ApiResponse<{
+  status: string;
+  resumedFrom: {
+    pagesCrawled: number;
+    entitiesExtracted: number;
+    phase: string;
+  };
+}>> {
+  const response = await apiClient.post<ApiResponse<{
+    status: string;
+    resumedFrom: {
+      pagesCrawled: number;
+      entitiesExtracted: number;
+      phase: string;
+    };
+  }>>(`/companies/${id}/start`);
+  return response.data;
+}
+
 export async function resumeCompany(id: string): Promise<ApiResponse<{
   status: string;
   resumedFrom: {

@@ -35,6 +35,9 @@ def init_celery(app) -> Celery:
     Returns:
         Configured Celery application instance
     """
+    # Store Flask app reference for use in tasks
+    celery_app.flask_app = app
+    
     # Update Celery config from Flask app config
     celery_app.conf.update(
         broker_url=app.config.get('CELERY_BROKER_URL', 'redis://localhost:6379/1'),

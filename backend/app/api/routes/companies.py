@@ -119,6 +119,28 @@ def create_company():
     db.session.add(company)
     db.session.commit()
 
+    # Start the analysis job automatically
+    from app.services.job_service import job_service
+    config_dict = {
+        'timeLimitMinutes': request_data.config.time_limit_minutes if request_data.config else None,
+        'maxPages': request_data.config.max_pages if request_data.config else None,
+        'maxDepth': request_data.config.max_depth if request_data.config else None,
+        'followLinkedIn': request_data.config.follow_linkedin if request_data.config else None,
+        'followTwitter': request_data.config.follow_twitter if request_data.config else None,
+        'followFacebook': request_data.config.follow_facebook if request_data.config else None,
+        'exclusionPatterns': request_data.config.exclusion_patterns if request_data.config else None,
+    } if request_data.config else None
+    
+    start_result = job_service.start_job(str(company.id), config_dict)
+    if not start_result.get('success'):
+        # Log error but don't fail the request - company is created
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to start job for company {company.id}: {start_result.get('error')}")
+
+    # Refresh company to get updated status
+    db.session.refresh(company)
+
     response_data = CreateCompanyResponse(
         companyId=company.id,
         status=company.status.value,

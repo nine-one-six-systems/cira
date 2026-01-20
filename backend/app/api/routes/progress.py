@@ -6,6 +6,7 @@ from app.api.routes.companies import make_error_response, make_success_response
 from app.models.company import Company, CrawlSession, Entity, Page, utcnow
 from app.models.enums import CompanyStatus, CrawlStatus
 from app.schemas import ProgressResponse
+from app.services.redis_service import redis_service
 
 
 @api_bp.route('/companies/<company_id>/progress', methods=['GET'])
@@ -15,6 +16,9 @@ def get_progress(company_id: str):
     if not company:
         return make_error_response('NOT_FOUND', 'Company not found', status=404)
 
+    # Get real-time progress from Redis (updated by Celery tasks)
+    redis_progress = redis_service.get_progress(company_id)
+
     # Get active or most recent crawl session
     session = (
         CrawlSession.query
@@ -23,16 +27,24 @@ def get_progress(company_id: str):
         .first()
     )
 
-    # Calculate stats
+    # Calculate stats - prefer Redis for real-time, fall back to DB
     pages_crawled = 0
     pages_total = 0
 
-    if session:
+    if redis_progress and redis_progress.get('pages_crawled') is not None:
+        # Use Redis data for real-time crawl progress
+        pages_crawled = redis_progress.get('pages_crawled', 0)
+        pages_total = pages_crawled + redis_progress.get('pages_queued', 0)
+    elif session:
+        # Fall back to database
         pages_crawled = session.pages_crawled
         pages_total = session.pages_crawled + session.pages_queued
 
-    # Get entity count
-    entities_extracted = Entity.query.filter_by(company_id=company_id).count()
+    # Get entity count - prefer Redis for real-time, fall back to DB
+    if redis_progress and redis_progress.get('entities_extracted') is not None:
+        entities_extracted = redis_progress.get('entities_extracted', 0)
+    else:
+        entities_extracted = Entity.query.filter_by(company_id=company_id).count()
 
     # Calculate time elapsed (in seconds)
     time_elapsed = 0
@@ -56,9 +68,13 @@ def get_progress(company_id: str):
         remaining_pages = pages_total - pages_crawled
         estimated_time_remaining = int(rate * remaining_pages)
 
-    # Determine current activity
+    # Determine current activity - prefer Redis for detailed real-time activity
     current_activity = None
-    if company.status == CompanyStatus.IN_PROGRESS:
+    if redis_progress and redis_progress.get('current_activity'):
+        # Use detailed activity from Redis (e.g., "Extracting from page 1/2...")
+        current_activity = redis_progress.get('current_activity')
+    elif company.status == CompanyStatus.IN_PROGRESS:
+        # Fall back to generic phase-based message
         phase = company.processing_phase
         if phase:
             current_activity = f'{phase.value.title()} company data...'

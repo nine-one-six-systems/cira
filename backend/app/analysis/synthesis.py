@@ -10,7 +10,7 @@ Task 6.5: Analysis Synthesis and Summary Generation
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from typing import Any
+from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -294,7 +294,7 @@ class AnalysisSynthesizer:
     def run_full_analysis(
         self,
         company_id: str,
-        progress_callback: callable | None = None,
+        progress_callback: Callable | None = None,
     ) -> AnalysisResult:
         """
         Run full analysis for a company.
@@ -408,7 +408,7 @@ class AnalysisSynthesizer:
         self,
         company_id: str,
         completed_sections: list[str],
-        progress_callback: callable | None = None,
+        progress_callback: Callable | None = None,
     ) -> AnalysisResult:
         """
         Resume analysis from a checkpoint.

@@ -310,7 +310,13 @@ class CrawlWorker:
             self._queue.add_url(normalized_url, depth=0)
 
         # Initialize rate limiter with config
-        self._rate_limiter.set_default_rate(self.config.requests_per_second)
+        # Configure rate limiting for the base URL's domain
+        # This will be used as the default rate for this crawl
+        normalized_url = self._normalize_url(start_url) or start_url
+        self._rate_limiter.configure_domain(
+            normalized_url,
+            rate=self.config.requests_per_second
+        )
 
     def _crawl_loop(self) -> str:
         """Main crawl loop. Returns reason for stopping."""
@@ -486,6 +492,9 @@ class CrawlWorker:
                 error=str(e),
                 crawl_time=time.time() - start_time,
             )
+        finally:
+            # Always release the rate limiter lock
+            self._rate_limiter.release(url)
 
     def _crawl_pdf(self, url: str, depth: int) -> CrawledPage:
         """Crawl and extract text from a PDF."""

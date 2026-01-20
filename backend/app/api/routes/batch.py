@@ -112,7 +112,8 @@ def batch_upload():
 
     try:
         # Read CSV content
-        content = file.read().decode('utf-8')
+        # Use 'utf-8-sig' to handle BOM (byte order mark) automatically
+        content = file.read().decode('utf-8-sig')
         reader = csv.DictReader(io.StringIO(content))
 
         # Check required columns

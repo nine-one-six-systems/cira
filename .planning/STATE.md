@@ -6,14 +6,14 @@
 **Phase:** 6 - Batch Processing
 **Status:** In Progress
 
-Progress: [##--------] 40% (2/5 Phase 6 plans complete)
+Progress: [######----] 60% (3/5 Phase 6 plans complete)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Users can research any company by entering a URL and receive a comprehensive intelligence brief without manual research work.
-**Current focus:** Phase 6 Batch Processing - integration tests for batch pipeline flow
+**Current focus:** Phase 6 Batch Processing - edge case tests for batch pipeline robustness
 
 ## Phase 1 Summary
 
@@ -67,13 +67,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Status:** In Progress
 **Requirements covered:** BAT-01 through BAT-04, API-02, API-09 (6 total)
-**Tests added:** 47 (17 from 06-01, 30 from 06-02)
+**Tests added:** 83 (17 from 06-01, 30 from 06-02, 36 from 06-03)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 06-01 | Batch Integration Tests | Complete |
 | 06-02 | Batch API Integration Tests | Complete |
-| 06-03 | Batch Edge Case Tests | Pending |
+| 06-03 | Batch Edge Case Tests | Complete |
 | 06-04 | Batch UI Tests | Pending |
 | 06-05 | Phase Verification | Pending |
 
@@ -86,8 +86,8 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Phase 3: AI Analysis | 198 | PASS |
 | Phase 4: State Management | 233 | PASS |
 | Phase 5: Export | 161 | PASS |
-| Phase 6: Batch Processing | 47 | PASS |
-| **Total** | **1102+** | **All passing** |
+| Phase 6: Batch Processing | 83 | PASS |
+| **Total** | **1138+** | **All passing** |
 
 ## Workflow Preferences
 
@@ -147,11 +147,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Combined Task 1 and Task 2 | 06-02 | Delete cascade tests logically belong together and share fixture setup |
 | Four test classes by behavior | 06-02 | TestBatchUploadResponses, TestBatchControlEndpoints, TestDeleteCompanyEndpoint, TestBatchListingEndpoints |
 | Cascade verification by ID | 06-02 | Query by ID after delete more reliable than count-based verification |
+| UTF8 BOM handling | 06-03 | Use utf-8-sig encoding to auto-strip UTF-8 BOM from CSV uploads |
+| Nine edge case classes | 06-03 | Comprehensive coverage: encoding, format, large files, name, URL, scheduling, concurrency, progress, cleanup |
 
 ## Session Continuity
 
-Last session: 2026-01-20T02:45:00Z
-Stopped at: Completed 06-02-PLAN.md (Batch API Integration Tests)
+Last session: 2026-01-20T02:50:00Z
+Stopped at: Completed 06-03-PLAN.md (Batch Edge Case Tests)
 Resume file: None
 
 ## Blockers
@@ -160,8 +162,8 @@ None currently.
 
 ## Next Steps
 
-1. Continue Phase 6 with 06-03 (Batch Edge Case Tests)
-2. Complete remaining Phase 6 plans (06-04, 06-05)
+1. Continue Phase 6 with 06-04 (Batch UI Tests)
+2. Complete 06-05 (Phase Verification)
 3. Consider addressing spaCy/Pydantic compatibility in maintenance phase
 
 ---

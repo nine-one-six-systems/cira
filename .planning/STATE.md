@@ -6,7 +6,7 @@
 **Phase:** 6 - Batch Processing
 **Status:** In Progress
 
-Progress: [#---------] 25% (1/4 Phase 6 plans complete)
+Progress: [##--------] 40% (2/5 Phase 6 plans complete)
 
 ## Project Reference
 
@@ -66,14 +66,16 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Phase 6 Summary
 
 **Status:** In Progress
-**Requirements covered:** BAT-01 through BAT-04, API-02 (5 total)
+**Requirements covered:** BAT-01 through BAT-04, API-02, API-09 (6 total)
+**Tests added:** 47 (17 from 06-01, 30 from 06-02)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 06-01 | Batch Integration Tests | Complete |
-| 06-02 | Batch Queue Service Tests | Pending |
+| 06-02 | Batch API Integration Tests | Complete |
 | 06-03 | Batch Edge Case Tests | Pending |
 | 06-04 | Batch UI Tests | Pending |
+| 06-05 | Phase Verification | Pending |
 
 ## Overall Test Coverage
 
@@ -84,8 +86,8 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Phase 3: AI Analysis | 198 | PASS |
 | Phase 4: State Management | 233 | PASS |
 | Phase 5: Export | 161 | PASS |
-| Phase 6: Batch Processing | 17 | PASS |
-| **Total** | **1072+** | **All passing** |
+| Phase 6: Batch Processing | 47 | PASS |
+| **Total** | **1102+** | **All passing** |
 
 ## Workflow Preferences
 
@@ -142,11 +144,14 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Batch fixture factory | 06-01 | Factory functions for batch test setup with configurable status |
 | Mock job_service | 06-01 | Mock job_service.start_job to avoid Celery dispatch in tests |
 | Per-class test organization | 06-01 | Organize tests by flow: upload, queue, template, progress, control |
+| Combined Task 1 and Task 2 | 06-02 | Delete cascade tests logically belong together and share fixture setup |
+| Four test classes by behavior | 06-02 | TestBatchUploadResponses, TestBatchControlEndpoints, TestDeleteCompanyEndpoint, TestBatchListingEndpoints |
+| Cascade verification by ID | 06-02 | Query by ID after delete more reliable than count-based verification |
 
 ## Session Continuity
 
-Last session: 2026-01-20T02:36:50Z
-Stopped at: Completed 06-01-PLAN.md (Batch Integration Tests)
+Last session: 2026-01-20T02:45:00Z
+Stopped at: Completed 06-02-PLAN.md (Batch API Integration Tests)
 Resume file: None
 
 ## Blockers
@@ -155,8 +160,8 @@ None currently.
 
 ## Next Steps
 
-1. Continue Phase 6 with 06-02 (Batch Queue Service Tests)
-2. Complete remaining Phase 6 plans (06-03, 06-04)
+1. Continue Phase 6 with 06-03 (Batch Edge Case Tests)
+2. Complete remaining Phase 6 plans (06-04, 06-05)
 3. Consider addressing spaCy/Pydantic compatibility in maintenance phase
 
 ---

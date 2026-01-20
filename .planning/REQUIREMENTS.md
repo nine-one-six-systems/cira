@@ -50,10 +50,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Batch Processing
 
-- [ ] **BAT-01**: User can upload CSV file with multiple companies
-- [ ] **BAT-02**: System validates CSV and reports errors per row
-- [ ] **BAT-03**: User can download CSV template
-- [ ] **BAT-04**: System queues batch companies for processing
+- [x] **BAT-01**: User can upload CSV file with multiple companies
+- [x] **BAT-02**: System validates CSV and reports errors per row
+- [x] **BAT-03**: User can download CSV template
+- [x] **BAT-04**: System queues batch companies for processing
 
 ### Export
 
@@ -66,14 +66,14 @@ Requirements for initial release. Each maps to roadmap phases.
 ### API
 
 - [x] **API-01**: POST /companies creates single company job
-- [ ] **API-02**: POST /companies/batch uploads CSV batch
+- [x] **API-02**: POST /companies/batch uploads CSV batch
 - [x] **API-03**: GET /companies lists companies with pagination and filtering
 - [x] **API-04**: GET /companies/:id returns company with latest analysis
 - [x] **API-05**: GET /companies/:id/progress returns real-time progress
 - [x] **API-06**: POST /companies/:id/pause pauses in-progress job
 - [x] **API-07**: POST /companies/:id/resume resumes paused job
 - [x] **API-08**: GET /companies/:id/export returns export in specified format
-- [ ] **API-09**: DELETE /companies/:id removes company and all data
+- [x] **API-09**: DELETE /companies/:id removes company and all data
 - [ ] **API-10**: GET /companies/:id/entities returns extracted entities
 
 ### UI
@@ -85,9 +85,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **UI-05**: User can browse extracted entities with filtering
 - [x] **UI-06**: User can export analysis from dropdown menu
 - [x] **UI-07**: User can pause/resume in-progress analysis
-- [ ] **UI-08**: User can configure analysis options (mode, limits, exclusions)
-- [ ] **UI-09**: User can upload batch CSV and preview before submission
-- [ ] **UI-10**: User can delete company and associated data
+- [x] **UI-08**: User can configure analysis options (mode, limits, exclusions)
+- [x] **UI-09**: User can upload batch CSV and preview before submission
+- [x] **UI-10**: User can delete company and associated data
 
 ## v2 Requirements
 
@@ -141,14 +141,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANA-01 to ANA-10 | Phase 3 | Complete |
 | STA-01 to STA-05 | Phase 4 | Complete |
 | EXP-01 to EXP-05 | Phase 5 | Complete |
-| BAT-01 to BAT-04 | Phase 6 | Pending |
+| BAT-01 to BAT-04 | Phase 6 | Complete |
 | API-05 to API-07 | Phase 4 | Complete |
 | API-08 | Phase 5 | Complete |
-| API-02, API-09, API-10 | Phases 2, 6 | Pending |
+| API-02, API-09 | Phase 6 | Complete |
+| API-10 | Phase 2 | Pending |
 | UI-03, UI-04 | Phase 3 | Complete |
 | UI-07 | Phase 4 | Complete |
 | UI-06 | Phase 5 | Complete |
-| UI-05, UI-08 to UI-10 | Phases 2, 6 | Pending |
+| UI-08, UI-09, UI-10 | Phase 6 | Complete |
+| UI-05 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 52 total
@@ -157,4 +159,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 5 completion*
+*Last updated: 2026-01-19 after Phase 6 completion (Milestone v1.0)*

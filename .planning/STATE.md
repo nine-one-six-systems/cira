@@ -6,14 +6,14 @@
 **Phase:** 5 - Export (IN PROGRESS)
 **Status:** In progress
 
-Progress: [####------] 40% (2/5 Phase 5 plans complete)
+Progress: [########--] 80% (4/5 Phase 5 plans complete)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Users can research any company by entering a URL and receive a comprehensive intelligence brief without manual research work.
-**Current focus:** Phase 5 Export - API integration tests complete, continuing with edge cases
+**Current focus:** Phase 5 Export - UI tests complete, ready for phase verification
 
 ## Phase 1 Summary
 
@@ -51,14 +51,14 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Phase 5 Summary
 
 **Status:** In Progress
-**Requirements covered:** API-08 (partial), EXP-01 through EXP-04
+**Requirements covered:** API-08, EXP-01 through EXP-05, UI-06
 
 | Plan | Name | Status |
 |------|------|--------|
 | 05-01 | Export Service Integration Tests | Complete |
 | 05-02 | Export API Integration Tests | Complete |
-| 05-03 | Export Edge Cases Tests | Not started |
-| 05-04 | Export UI Tests | Not started |
+| 05-03 | Export Edge Cases Tests | Complete |
+| 05-04 | Export UI Tests | Complete |
 | 05-05 | Phase Verification | Not started |
 
 ## Overall Test Coverage
@@ -118,11 +118,14 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Verification includes implementation coverage | 04-05 | Document both test mapping and feature implementation status |
 | Organize tests by HTTP behavior | 05-02 | 8 test classes organized by export endpoint behavior category |
 | Magic bytes validation | 05-02 | Use PK for docx and %PDF for pdf binary format verification |
+| Combined Task 1 and Task 2 | 05-04 | All tests from both tasks logically belong together and share mock setup |
+| Test export visibility for all statuses | 05-04 | Current implementation shows export dropdown always; backend handles 422 validation |
+| Use markdown extension not .md | 05-04 | Implementation uses format name directly as extension (except word->docx) |
 
 ## Session Continuity
 
-Last session: 2026-01-20T00:40:49Z
-Stopped at: Completed 05-02-PLAN.md (Export API Integration Tests)
+Last session: 2026-01-20T00:41:10Z
+Stopped at: Completed 05-04-PLAN.md (Export UI Tests)
 Resume file: None
 
 ## Blockers
@@ -131,9 +134,9 @@ None currently.
 
 ## Next Steps
 
-1. Execute 05-03-PLAN.md (Export Edge Cases Tests)
-2. Execute 05-04-PLAN.md (Export UI Tests)
-3. Execute 05-05-PLAN.md (Phase Verification)
+1. Execute 05-05-PLAN.md (Phase Verification)
+2. Complete Phase 5 Export verification
+3. Begin Phase 6 or final milestone wrap-up
 
 ---
 *Last updated: 2026-01-20*

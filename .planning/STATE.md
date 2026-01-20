@@ -121,11 +121,13 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 | Combined Task 1 and Task 2 | 05-04 | All tests from both tasks logically belong together and share mock setup |
 | Test export visibility for all statuses | 05-04 | Current implementation shows export dropdown always; backend handles 422 validation |
 | Use markdown extension not .md | 05-04 | Implementation uses format name directly as extension (except word->docx) |
+| Edge case class organization | 05-03 | 7 test classes covering distinct edge case categories for export robustness |
+| Fix backslash in filename | 05-03 | Added backslash sanitization to generate_export() for cross-platform safety |
 
 ## Session Continuity
 
-Last session: 2026-01-20T00:41:10Z
-Stopped at: Completed 05-04-PLAN.md (Export UI Tests)
+Last session: 2026-01-20T00:42:26Z
+Stopped at: Completed 05-03-PLAN.md (Export Edge Cases Tests)
 Resume file: None
 
 ## Blockers
